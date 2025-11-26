@@ -228,3 +228,65 @@
         // タブ切り替え
         function showTab(tabName) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.item-list').forEach(list => list.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('tab-' + tabName).classList.add('active');
+        }
+
+        // パーツ着せ替え
+        function setPart(layerId, imageName) {
+            const layer = document.getElementById(layerId);
+            if (imageName) {
+                layer.src = `assets/${imageName}.png`;
+                layer.style.display = 'block';
+            } else {
+                layer.src = ''; // ソースを空に
+                layer.style.display = 'none';
+            }
+        }
+
+        // ★保存機能（背景透過で合成してダウンロード）★
+        function downloadImage() {
+            // 1. 仮想のキャンバスを作る（サイズはアバター表示エリアに合わせる）
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            const display = document.getElementById('avatar-display');
+            
+            // 画像の元サイズに合わせる（綺麗に出力するため）
+            // ※ここでは統一規格サイズ(例:1000x1500)で描画されるようにします
+            // 基準としてbody画像のサイズを取得してみる
+            const bodyImg = document.getElementById('layer-body');
+            canvas.width = bodyImg.naturalWidth || 1000; 
+            canvas.height = bodyImg.naturalHeight || 1500;
+
+            // 2. 表示されているレイヤーだけを、z-indexの順（奥→手前）に描画
+            // 順番: 後髪 -> 素体 -> 目 -> 口 -> 服 -> 前髪 -> アクセ -> フレーム
+            const layerIds = [
+                'layer-hair-back',
+                'layer-body',
+                'layer-eyes',
+                'layer-mouth',
+                'layer-outfit',
+                'layer-hair-front',
+                'layer-accessory',
+                'layer-frame'
+            ];
+
+            // 順番に描画処理
+            layerIds.forEach(id => {
+                const img = document.getElementById(id);
+                // 画像が表示されていて(display!=none)、かつ読み込み完了している場合のみ描画
+                if (img.style.display !== 'none' && img.src) {
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                }
+            });
+
+            // 3. 画像としてダウンロードさせる
+            const link = document.createElement('a');
+            link.download = 'watasute_avatar.png'; // 保存ファイル名
+            link.href = canvas.toDataURL('image/png'); // PNG形式（背景透過）
+            link.click();
+        }
+    </script>
+</body>
+</html>
