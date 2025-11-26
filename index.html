@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>わたすて - MVP</title>
     <style>
-        /* デザイン部分（CSS） */
+        /* --- デザイン部分（CSS） --- */
         body {
             font-family: "Helvetica Neue", Arial, sans-serif;
             margin: 0;
@@ -28,15 +28,20 @@
         #avatar-display {
             width: 300px;
             height: 300px;
-            background-color: #fff;
+            background-color: #fff; /* ※保存時はここは透過されます */
             border-radius: 20px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            position: relative; /* 重ね合わせの基準 */
+            position: relative;
             overflow: hidden;
             margin-bottom: 20px;
+            /* 背景市松模様（透過がわかるように） */
+            background-image: linear-gradient(45deg, #eee 25%, transparent 25%, transparent 75%, #eee 75%, #eee), 
+                              linear-gradient(45deg, #eee 25%, transparent 25%, transparent 75%, #eee 75%, #eee);
+            background-size: 20px 20px;
+            background-position: 0 0, 10px 10px;
         }
 
-        /* レイヤー（画像の重なり）設定 */
+        /* レイヤー設定 */
         .avatar-layer {
             position: absolute;
             top: 0;
@@ -44,21 +49,24 @@
             width: 100%;
             height: 100%;
             object-fit: contain;
-            pointer-events: none; /* 画像をクリックしても後ろに触れるように */
+            pointer-events: none;
         }
 
-        /* 順序（Z-index）の定義 */
-        /* 数字が大きいほど手前に表示されます */
-        #layer-hair-back { z-index: 5; }  /* 一番奥：後ろ髪 */
-        #layer-body { z-index: 10; }      /* 素体 */
-        #layer-eyes { z-index: 20; }      /* 目 */
-        #layer-outfit { z-index: 25; }    /* 服 */
-        #layer-hair-front { z-index: 30; }/* 一番手前：前髪 */
+        /* --- 重ね順（Z-index）の定義 --- */
+        /* 数字が大きいほど手前に来ます */
+        #layer-hair-back { z-index: 10; }   /* 後ろ髪 */
+        #layer-body      { z-index: 20; }   /* 素体（必須） */
+        #layer-eyes      { z-index: 30; }   /* 目 */
+        #layer-mouth     { z-index: 35; }   /* 口 */
+        #layer-outfit    { z-index: 40; }   /* 服 */
+        #layer-hair-front{ z-index: 50; }   /* 前髪 */
+        #layer-accessory { z-index: 60; }   /* アクセサリー */
+        #layer-frame     { z-index: 100; }  /* フレーム（最前面） */
 
         /* 操作パネル */
         #controls {
-            width: 90%;
-            max-width: 400px;
+            width: 95%;
+            max-width: 500px;
             background: white;
             padding: 15px;
             border-radius: 15px;
@@ -68,43 +76,45 @@
         /* タブボタン */
         .tabs {
             display: flex;
-            justify-content: space-between; /* 均等配置 */
+            gap: 5px;
             margin-bottom: 15px;
             border-bottom: 2px solid #eee;
-            overflow-x: auto; /* タブが多い場合はスクロール */
+            overflow-x: auto;
             white-space: nowrap;
+            padding-bottom: 5px;
         }
         .tab-btn {
             background: none;
             border: none;
-            padding: 10px;
+            padding: 8px 12px;
             font-weight: bold;
             color: #aaa;
             cursor: pointer;
-            font-size: 0.9rem;
+            font-size: 0.85rem;
+            flex-shrink: 0; /* 縮まないように */
         }
         .tab-btn.active {
             color: #ff8fab;
-            border-bottom: 2px solid #ff8fab;
+            border-bottom: 3px solid #ff8fab;
         }
 
         /* アイテム一覧 */
         .item-list {
-            display: none; /* 初期は非表示 */
+            display: none;
             grid-template-columns: repeat(4, 1fr);
             gap: 10px;
-            max-height: 300px;
+            max-height: 250px;
             overflow-y: auto;
         }
         .item-list.active {
-            display: grid; /* 選ばれたタブだけ表示 */
+            display: grid;
         }
 
         .item-btn {
             aspect-ratio: 1;
-            background-color: #f0f0f0;
-            border: 2px solid transparent;
-            border-radius: 10px;
+            background-color: #f9f9f9;
+            border: 2px solid #eee;
+            border-radius: 8px;
             cursor: pointer;
             display: flex;
             align-items: center;
@@ -112,27 +122,30 @@
             font-size: 0.7rem;
             flex-direction: column;
             text-align: center;
+            padding: 5px;
         }
         .item-btn:hover {
             border-color: #ff8fab;
+            background-color: #fff0f5;
         }
         
         /* 保存ボタン */
         #save-btn {
             margin-top: 20px;
-            margin-bottom: 40px;
+            margin-bottom: 50px;
             background-color: #ff8fab;
             color: white;
             border: none;
-            padding: 15px 40px;
+            padding: 15px 50px;
             border-radius: 30px;
-            font-size: 1rem;
+            font-size: 1.1rem;
             font-weight: bold;
             cursor: pointer;
             box-shadow: 0 4px 6px rgba(255, 143, 171, 0.4);
+            transition: transform 0.1s;
         }
         #save-btn:active {
-            transform: translateY(2px);
+            transform: scale(0.95);
         }
 
     </style>
@@ -143,10 +156,13 @@
 
     <div id="avatar-display">
         <img id="layer-hair-back" class="avatar-layer" src="" alt="">
-        <img id="layer-body" class="avatar-layer" src="assets/body.png" alt="素体">
-        <img id="layer-eyes" class="avatar-layer" src="" alt="">
-        <img id="layer-outfit" class="avatar-layer" src="" alt="">
-        <img id="layer-hair-front" class="avatar-layer" src="" alt="">
+        <img id="layer-body"      class="avatar-layer" src="assets/body.png" alt="素体">
+        <img id="layer-eyes"      class="avatar-layer" src="" alt="">
+        <img id="layer-mouth"     class="avatar-layer" src="" alt="">
+        <img id="layer-outfit"    class="avatar-layer" src="" alt="">
+        <img id="layer-hair-front"class="avatar-layer" src="" alt="">
+        <img id="layer-accessory" class="avatar-layer" src="" alt="">
+        <img id="layer-frame"     class="avatar-layer" src="" alt="">
     </div>
 
     <div id="controls">
@@ -154,7 +170,10 @@
             <button class="tab-btn active" onclick="showTab('hair-front')">前髪</button>
             <button class="tab-btn" onclick="showTab('hair-back')">後髪</button>
             <button class="tab-btn" onclick="showTab('eyes')">目</button>
+            <button class="tab-btn" onclick="showTab('mouth')">口</button>
             <button class="tab-btn" onclick="showTab('outfit')">服</button>
+            <button class="tab-btn" onclick="showTab('accessory')">アクセ</button>
+            <button class="tab-btn" onclick="showTab('frame')">フレーム</button>
         </div>
 
         <div id="tab-hair-front" class="item-list active">
@@ -172,6 +191,13 @@
         <div id="tab-eyes" class="item-list">
             <button class="item-btn" onclick="setPart('layer-eyes', 'eyes1')">ぱっちり</button>
             <button class="item-btn" onclick="setPart('layer-eyes', 'eyes2')">ジト目</button>
+            <button class="item-btn" onclick="setPart('layer-eyes', null)">なし</button>
+        </div>
+
+        <div id="tab-mouth" class="item-list">
+            <button class="item-btn" onclick="setPart('layer-mouth', 'mouth1')">笑顔</button>
+            <button class="item-btn" onclick="setPart('layer-mouth', 'mouth2')">真顔</button>
+            <button class="item-btn" onclick="setPart('layer-mouth', null)">なし</button>
         </div>
 
         <div id="tab-outfit" class="item-list">
@@ -180,35 +206,25 @@
             <button class="item-btn" onclick="setPart('layer-outfit', 'outfit3')">メイド</button>
             <button class="item-btn" onclick="setPart('layer-outfit', null)">脱ぐ</button>
         </div>
+
+        <div id="tab-accessory" class="item-list">
+            <button class="item-btn" onclick="setPart('layer-accessory', 'accessory1')">リボン</button>
+            <button class="item-btn" onclick="setPart('layer-accessory', 'accessory2')">眼鏡</button>
+            <button class="item-btn" onclick="setPart('layer-accessory', null)">なし</button>
+        </div>
+
+        <div id="tab-frame" class="item-list">
+            <button class="item-btn" onclick="setPart('layer-frame', 'frame1')">キラキラ</button>
+            <button class="item-btn" onclick="setPart('layer-frame', 'frame2')">集中線</button>
+            <button class="item-btn" onclick="setPart('layer-frame', null)">なし</button>
+        </div>
     </div>
 
-    <button id="save-btn" onclick="alert('ここに画像保存機能がつきます！')">画像を保存する</button>
+    <button id="save-btn" onclick="downloadImage()">画像を保存する</button>
 
     <script>
-        /* ロジック部分 */
+        /* --- ロジック部分（JavaScript） --- */
         
         // タブ切り替え
         function showTab(tabName) {
             document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-            document.querySelectorAll('.item-list').forEach(list => list.classList.remove('active'));
-
-            event.target.classList.add('active');
-            document.getElementById('tab-' + tabName).classList.add('active');
-        }
-
-        // 汎用パーツ着せ替え機能
-        // layerId: どのレイヤーを変えるか（例: layer-hair-front）
-        // imageName: どの画像ファイルを使うか（例: hair1_front）※assets/と.pngは自動でつきます
-        function setPart(layerId, imageName) {
-            const layer = document.getElementById(layerId);
-            if (imageName) {
-                layer.src = `assets/${imageName}.png`;
-                layer.style.display = 'block';
-            } else {
-                layer.src = '';
-                layer.style.display = 'none';
-            }
-        }
-    </script>
-</body>
-</html>
