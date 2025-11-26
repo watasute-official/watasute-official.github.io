@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>わたすて - MVP</title>
+    <style>
+        /* デザイン部分（CSS） */
+        body {
+            font-family: "Helvetica Neue", Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #fcf0f5; /* パステルピンク背景 */
+            color: #333;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        h1 {
+            font-size: 1.2rem;
+            color: #ff8fab;
+            margin: 10px 0;
+        }
+
+        /* アバター表示エリア */
+        #avatar-display {
+            width: 300px;
+            height: 300px;
+            background-color: #fff;
+            border-radius: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            position: relative; /* 重ね合わせの基準 */
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        /* レイヤー（画像の重なり）設定 */
+        .avatar-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            pointer-events: none; /* 画像をクリックしても後ろに触れるように */
+        }
+
+        /* 順序（Z-index）の定義 */
+        #layer-body { z-index: 10; } /* 素体 */
+        #layer-eyes { z-index: 20; } /* 目 */
+        #layer-hair-back { z-index: 5; } /* 後ろ髪 */
+        #layer-hair-front { z-index: 30; } /* 前髪 */
+        #layer-outfit { z-index: 25; } /* 服 */
+
+        /* 操作パネル */
+        #controls {
+            width: 90%;
+            max-width: 400px;
+            background: white;
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        /* タブボタン */
+        .tabs {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #eee;
+        }
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 10px;
+            font-weight: bold;
+            color: #aaa;
+            cursor: pointer;
+        }
+        .tab-btn.active {
+            color: #ff8fab;
+            border-bottom: 2px solid #ff8fab;
+        }
+
+        /* アイテム一覧 */
+        .item-list {
+            display: none; /* 初期は非表示 */
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+        }
+        .item-list.active {
+            display: grid; /* 選ばれたタブだけ表示 */
+        }
+
+        .item-btn {
+            aspect-ratio: 1;
+            background-color: #f0f0f0;
+            border: 2px solid transparent;
+            border-radius: 10px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+        }
+        .item-btn:hover {
+            border-color: #ff8fab;
+        }
+
+        /* 保存ボタン */
+        #save-btn {
+            margin-top: 20px;
+            background-color: #ff8fab;
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(255, 143, 171, 0.4);
+        }
+        #save-btn:active {
+            transform: translateY(2px);
+        }
+
+    </style>
+</head>
+<body>
+
+    <h1>WATASUTE Demo</h1>
+
+    <div id="avatar-display">
+        <img id="layer-hair-back" class="avatar-layer" src="" alt="">
+        <img id="layer-body" class="avatar-layer" src="assets/body.png" alt="素体(未設定)">
+        <img id="layer-eyes" class="avatar-layer" src="" alt="">
+        <img id="layer-outfit" class="avatar-layer" src="" alt="">
+        <img id="layer-hair-front" class="avatar-layer" src="" alt="">
+    </div>
+
+    <div id="controls">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('hair')">髪</button>
+            <button class="tab-btn" onclick="showTab('eyes')">目</button>
+            <button class="tab-btn" onclick="showTab('outfit')">服</button>
+        </div>
+
+        <div id="tab-hair" class="item-list active">
+            <button class="item-btn" onclick="setHair('hair1')">ロング</button>
+            <button class="item-btn" onclick="setHair('hair2')">ショート</button>
+            <button class="item-btn" onclick="setHair(null)">なし</button>
+        </div>
+
+        <div id="tab-eyes" class="item-list">
+            <button class="item-btn" onclick="setPart('layer-eyes', 'eyes1')">ぱっちり</button>
+            <button class="item-btn" onclick="setPart('layer-eyes', 'eyes2')">ジト目</button>
+        </div>
+
+        <div id="tab-outfit" class="item-list">
+            <button class="item-btn" onclick="setPart('layer-outfit', 'outfit1')">制服</button>
+            <button class="item-btn" onclick="setPart('layer-outfit', 'outfit2')">ドレス</button>
+             <button class="item-btn" onclick="setPart('layer-outfit', null)">脱ぐ</button>
+        </div>
+    </div>
+
+    <button id="save-btn" onclick="alert('まだ画像がないため保存できませんが、機能はここに付きます！')">画像を保存する</button>
+
+    <script>
+        /* ロジック部分（JavaScript） */
+        
+        // タブ切り替え機能
+        function showTab(tabName) {
+            // すべてのタブボタンからactiveを消す
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            // すべてのリストを隠す
+            document.querySelectorAll('.item-list').forEach(list => list.classList.remove('active'));
+
+            // クリックされたボタンとリストだけアクティブにする
+            event.target.classList.add('active');
+            document.getElementById('tab-' + tabName).classList.add('active');
+        }
+
+        // パーツ着せ替え機能（汎用）
+        function setPart(layerId, imageName) {
+            const layer = document.getElementById(layerId);
+            if (imageName) {
+                // 画像がある場合（assetsフォルダの中を見る設定）
+                layer.src = `assets/${imageName}.png`;
+                layer.style.display = 'block';
+            } else {
+                // 「なし」の場合
+                layer.src = '';
+                layer.style.display = 'none';
+            }
+        }
+
+        // 髪型セット（前髪と後ろ髪を同時に変える特別処理）
+        function setHair(hairName) {
+            if (hairName) {
+                document.getElementById('layer-hair-front').src = `assets/${hairName}_front.png`;
+                document.getElementById('layer-hair-back').src = `assets/${hairName}_back.png`;
+            } else {
+                document.getElementById('layer-hair-front').src = '';
+                document.getElementById('layer-hair-back').src = '';
+            }
+        }
+
+    </script>
+</body>
+</html>
