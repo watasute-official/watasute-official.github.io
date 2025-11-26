@@ -117,4 +117,169 @@
             border-radius: 8px;
             cursor: pointer;
             display: flex;
-            align
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            flex-direction: column;
+            text-align: center;
+            padding: 5px;
+        }
+        .item-btn:hover {
+            border-color: #ff8fab;
+            background-color: #fff0f5;
+        }
+        
+        /* 保存ボタン */
+        #save-btn {
+            margin-top: 20px;
+            margin-bottom: 50px;
+            background-color: #ff8fab;
+            color: white;
+            border: none;
+            padding: 15px 50px;
+            border-radius: 30px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(255, 143, 171, 0.4);
+            transition: transform 0.1s;
+        }
+        #save-btn:active {
+            transform: scale(0.95);
+        }
+    </style>
+</head>
+<body>
+
+    <h1>WATASUTE Demo</h1>
+
+    <div id="avatar-display">
+        <img id="layer-hair-back" class="avatar-layer" src="" alt="">
+        <img id="layer-body"      class="avatar-layer" src="assets/body.png" alt="素体">
+        <img id="layer-eyes"      class="avatar-layer" src="" alt="">
+        <img id="layer-mouth"     class="avatar-layer" src="" alt="">
+        <img id="layer-outfit"    class="avatar-layer" src="" alt="">
+        <img id="layer-hair-front"class="avatar-layer" src="" alt="">
+        <img id="layer-accessory" class="avatar-layer" src="" alt="">
+        <img id="layer-frame"     class="avatar-layer" src="" alt="">
+    </div>
+
+    <div id="controls">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('hair-front')">前髪</button>
+            <button class="tab-btn" onclick="showTab('hair-back')">後髪</button>
+            <button class="tab-btn" onclick="showTab('eyes')">目</button>
+            <button class="tab-btn" onclick="showTab('mouth')">口</button>
+            <button class="tab-btn" onclick="showTab('outfit')">服</button>
+        </div>
+
+        <div id="tab-hair-front" class="item-list active">
+            <button class="item-btn" onclick="setPart('layer-hair-front', 'hair1_front')">ロング</button>
+            <button class="item-btn" onclick="setPart('layer-hair-front', 'hair2_front')">ショート</button>
+            <button class="item-btn" onclick="setPart('layer-hair-front', null)">なし</button>
+        </div>
+
+        <div id="tab-hair-back" class="item-list">
+            <button class="item-btn" onclick="setPart('layer-hair-back', 'hair1_back')">ロング</button>
+            <button class="item-btn" onclick="setPart('layer-hair-back', 'hair2_back')">ショート</button>
+            <button class="item-btn" onclick="setPart('layer-hair-back', null)">なし</button>
+        </div>
+
+        <div id="tab-eyes" class="item-list">
+            <button class="item-btn" onclick="setPart('layer-eyes', 'eyes1')">目1</button>
+            <button class="item-btn" onclick="setPart('layer-eyes', 'eyes2')">目2</button>
+            <button class="item-btn" onclick="setPart('layer-eyes', 'eyes3')">目3</button>
+            <button class="item-btn" onclick="setPart('layer-eyes', 'eyes4')">目4</button>
+            <button class="item-btn" onclick="setPart('layer-eyes', 'eyes5')">目5</button>
+            <button class="item-btn" onclick="setPart('layer-eyes', 'eyes6')">目6</button>
+            <button class="item-btn" onclick="setPart('layer-eyes', null)">なし</button>
+        </div>
+
+        <div id="tab-mouth" class="item-list">
+            <button class="item-btn" onclick="setPart('layer-mouth', 'mouth1')">口1</button>
+            <button class="item-btn" onclick="setPart('layer-mouth', 'mouth2')">口2</button>
+            <button class="item-btn" onclick="setPart('layer-mouth', 'mouth3')">口3</button>
+            <button class="item-btn" onclick="setPart('layer-mouth', 'mouth4')">口4</button>
+            <button class="item-btn" onclick="setPart('layer-mouth', 'mouth5')">口5</button>
+            <button class="item-btn" onclick="setPart('layer-mouth', null)">なし</button>
+        </div>
+
+        <div id="tab-outfit" class="item-list">
+            <button class="item-btn" onclick="setPart('layer-outfit', 'outfit1')">制服</button>
+            <button class="item-btn" onclick="setPart('layer-outfit', 'outfit2')">ドレス</button>
+            <button class="item-btn" onclick="setPart('layer-outfit', 'outfit3')">メイド</button>
+            <button class="item-btn" onclick="setPart('layer-outfit', null)">脱ぐ</button>
+        </div>
+    </div>
+
+    <button id="save-btn" onclick="downloadImage()">画像を保存する</button>
+
+    <script>
+        /* --- ロジック部分 --- */
+        
+        function showTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.item-list').forEach(list => list.classList.remove('active'));
+            event.target.classList.add('active');
+            document.getElementById('tab-' + tabName).classList.add('active');
+        }
+
+        function setPart(layerId, imageName) {
+            const layer = document.getElementById(layerId);
+            if (imageName) {
+                layer.src = `assets/${imageName}.png`;
+                layer.style.display = 'block';
+            } else {
+                layer.src = ''; 
+                layer.style.display = 'none';
+            }
+        }
+
+        /* --- 保存機能 --- */
+        function downloadImage() {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            
+            // キャンバスサイズを素体画像に合わせる（高画質用）
+            const bodyImg = document.getElementById('layer-body');
+            canvas.width = bodyImg.naturalWidth || 1000; 
+            canvas.height = bodyImg.naturalHeight || 1500;
+
+            // 重ね順リスト（奥から手前）
+            const layerIds = [
+                'layer-background',
+                'layer-hair-back',
+                'layer-body',
+                'layer-eyes',
+                'layer-mouth',
+                'layer-outfit',
+                'layer-hair-front',
+                'layer-accessory',
+                'layer-frame'
+            ];
+
+            // 描画実行
+            let itemsDrawn = 0;
+            layerIds.forEach(id => {
+                const img = document.getElementById(id);
+                if (img.style.display !== 'none' && img.src && img.complete) {
+                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+                    itemsDrawn++;
+                }
+            });
+
+            // 何も描画されなかった場合の保険
+            if (itemsDrawn === 0) {
+                alert("画像が読み込まれていないため保存できません。少し待ってから試してください。");
+                return;
+            }
+
+            // ダウンロード処理
+            const link = document.createElement('a');
+            link.download = 'watasute_avatar.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+    </script>
+</body>
+</html>
