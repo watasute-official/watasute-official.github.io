@@ -55,13 +55,13 @@
             cursor: pointer;
         }
 
-        /* メインビジュアル */
+     /* メインビジュアル */
         .main-visual {
             width: 100%;
-            height: auto;
+            height: auto; /* ここが auto になっているか確認！ */
+            object-fit: contain; /* これを追加すると比率が保たれます */
             margin-bottom: 20px;
         }
-
         /* ボタン類（ヘルプなど） */
         .header-buttons {
             display: flex;
@@ -129,11 +129,15 @@
             margin-bottom: 10px;
             color: #333;
         }
-        .slider-content {
+       .slider-content {
             display: flex;
-            justify-content: center;
+            justify-content: flex-start; /* ← center から flex-start に変更 */
             gap: 10px;
             overflow-x: auto;
+            
+            /* ↓↓↓ これを追加してください！ ↓↓↓ */
+            width: 100%; /* 親要素の幅いっぱいに制限する */
+            padding-bottom: 10px; /* スクロールバー用の隙間 */
         }
         .thumb-img {
             width: 80px;
