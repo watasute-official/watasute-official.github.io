@@ -54,12 +54,32 @@
             padding: 15px 0;
             text-align: center;
             position: relative;
+            display: flex; /* フレックスボックスにする */
+            justify-content: center; /* 中身を中央寄せ */
+            align-items: center; /* 上下中央寄せ */
         }
         .logo { width: 220px; max-width: 60%; }
-        .menu-icon {
+        
+        /* ★画像を使わない三本線メニュー（CSSで描画） */
+        .hamburger-menu {
             position: absolute;
-            left: 15px; top: 50%; transform: translateY(-50%);
-            width: 30px; cursor: pointer;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 30px;
+            height: 24px;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            z-index: 10;
+        }
+        .hamburger-menu span {
+            display: block;
+            width: 100%;
+            height: 3px;
+            background-color: #333; /* 線の色（黒） */
+            border-radius: 3px;
         }
 
         .main-visual {
@@ -78,17 +98,17 @@
         }
         .header-btn { width: 45%; max-width: 160px; cursor: pointer; }
 
-        /* お知らせマーキー（修正：はみ出し防止） */
+        /* お知らせマーキー */
         .news-ticker {
-            width: 90%; /* ← 95%から90%にして余裕を持たせる */
+            width: 90%;
             height: 40px;
             background-image: url('assets/bg_news.png');
-            background-size: 100% 100%; /* 画像を引き伸ばして合わせる */
+            background-size: 100% 100%;
             display: flex;
             align-items: center;
             overflow: hidden;
             margin: 0 auto 20px auto;
-            font-size: 0.8rem; /* 文字サイズ調整 */
+            font-size: 0.8rem;
             color: #333;
             white-space: nowrap;
             border-radius: 5px;
@@ -105,7 +125,7 @@
 
         .start-area { width: 100%; text-align: center; margin-bottom: 30px; }
         .btn-start {
-            width: 80%; /* 幅を調整 */
+            width: 80%;
             max-width: 300px;
             display: block;
             margin: 0 auto;
@@ -116,9 +136,9 @@
 
         /* --- スライダー共通設定 --- */
         .slider-area, .recommend-area {
-            width: 92%; /* 左右に4%ずつの余白 */
+            width: 92%;
             background: #d0f0f0;
-            padding: 15px 10px; /* 内側の余白 */
+            padding: 15px 10px;
             border-radius: 15px;
             text-align: center;
             margin: 0 auto 20px auto;
@@ -139,7 +159,6 @@
             width: 100%;
             padding-bottom: 5px;
         }
-        /* スクロールバーを隠す（スマホ用） */
         .slider-content::-webkit-scrollbar { display: none; }
 
         .thumb-img {
@@ -181,9 +200,8 @@
         #maker-screen {
             display: none; width: 100%; flex-direction: column; align-items: center; padding-top: 20px;
         }
-        /* ...以下の着せ替え画面のCSSはそのまま... */
         #avatar-display {
-            width: 300px; height: 300px; /* スマホ用に少し小さく調整 */
+            width: 300px; height: 300px;
             background-color: #fff; border-radius: 20px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
             position: relative; overflow: hidden; margin-bottom: 15px;
@@ -191,7 +209,6 @@
                               linear-gradient(45deg, #eee 25%, transparent 25%, transparent 75%, #eee 75%, #eee);
             background-size: 20px 20px; background-position: 0 0, 10px 10px;
         }
-        /* ... 他のCSSは変更なし ... */
         .avatar-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
         #layer-background { z-index: 5; }
         #layer-hair-back  { z-index: 10; }
@@ -222,11 +239,16 @@
 
     <div id="home-screen">
         <header>
-            <img src="assets/icon_menu.png" class="menu-icon" alt="Menu">
+            <div class="hamburger-menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            
             <img src="assets/logo.png" class="logo" alt="WATASUTE">
         </header>
 
-        <img src="assets/main_visual.png" class="main-visual" alt="Main Visual">
+        <img src="assets/main_visual.jpg" class="main-visual" alt="Main Visual">
 
         <div class="header-buttons">
             <img src="assets/btn_Q.png" class="header-btn" alt="About">
