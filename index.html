@@ -1,518 +1,1455 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>わたすて - WATASUTE</title>
-    <style>
-        /* --- 全体のデザイン設定 --- */
-        
-        /* ★魔法の呪文：すべてのサイズの計算を「枠線込み」にする */
-        * {
-            box-sizing: border-box;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>わたすて - WATASUTE</title>
+  <meta
+    name="description"
+    content="わたすて（WATASUTE）は、服や髪型、アクセサリーを自由に着せ替えて遊べるデジタルアバターサービスです。クリエイター向けのアイテム登録も準備中。"
+  />
+  <style>
+    /* ========== 共通リセット ========== */
+    * {
+      box-sizing: border-box;
+    }
 
-        body {
-            font-family: "Helvetica Neue", Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            background-color: #fcf0f5;
-            background-image: url('assets/bg_pattern.png');
-            background-size: 100px;
-            color: #333;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            overflow-x: hidden; /* 横スクロールを禁止 */
-        }
+    body {
+      font-family: "Helvetica Neue", Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #fcf0f5;
+      background-image: url("assets/bg_pattern.png");
+      background-size: 100px;
+      color: #333;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
 
-        img {
-            max-width: 100%;
-            height: auto;
-            vertical-align: bottom;
-        }
+    img {
+      max-width: 100%;
+      height: auto;
+      vertical-align: bottom;
+    }
 
-        /* コンテナ（スマホアプリ風の枠） */
-        .container {
-            width: 100%;
-            max-width: 480px; /* PCで見てもスマホサイズを維持 */
-            background: rgba(255, 255, 255, 0.95);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
-            margin: 0 auto;
-            padding-bottom: 50px;
-            overflow: hidden; /* はみ出し防止 */
-        }
+    button {
+      font-family: inherit;
+    }
 
-        /* --- ヘッダー --- */
-        header {
-            width: 100%;
-            padding: 15px 0;
-            text-align: center;
-            position: relative;
-            display: flex; /* フレックスボックスにする */
-            justify-content: center; /* 中身を中央寄せ */
-            align-items: center; /* 上下中央寄せ */
-        }
-        .logo { width: 220px; max-width: 60%; }
-        
-        /* ★画像を使わない三本線メニュー（CSSで描画） */
-        .hamburger-menu {
-            position: absolute;
-            left: 20px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 30px;
-            height: 24px;
-            cursor: pointer;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            z-index: 10;
-        }
-        .hamburger-menu span {
-            display: block;
-            width: 100%;
-            height: 3px;
-            background-color: #333; /* 線の色（黒） */
-            border-radius: 3px;
-        }
+    /* ========== アプリ枠 ========== */
 
-        .main-visual {
-            width: 100%;
-            display: block;
-            margin-bottom: 20px;
-        }
+    .app {
+      width: 100%;
+      max-width: 480px; /* スマホ基準幅 */
+      min-height: 100vh;
+      background: rgba(255, 255, 255, 0.97);
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+    }
 
-        .header-buttons {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            margin-bottom: 20px;
-            width: 100%;
-            padding: 0 10px;
-        }
-        .header-btn { width: 45%; max-width: 160px; cursor: pointer; }
+    .app-inner {
+      width: 100%;
+      padding: 0 16px 32px;
+    }
 
-        /* お知らせマーキー */
-        .news-ticker {
-            width: 90%;
-            height: 40px;
-            background-image: url('assets/bg_news.png');
-            background-size: 100% 100%;
-            display: flex;
-            align-items: center;
-            overflow: hidden;
-            margin: 0 auto 20px auto;
-            font-size: 0.8rem;
-            color: #333;
-            white-space: nowrap;
-            border-radius: 5px;
-        }
-        .news-content {
-            display: inline-block;
-            padding-left: 100%;
-            animation: marquee 15s linear infinite;
-        }
-        @keyframes marquee {
-            0% { transform: translate(0, 0); }
-            100% { transform: translate(-100%, 0); }
-        }
+    /* PC・タブレット時は少し大きく */
+    @media (min-width: 900px) {
+      .app {
+        max-width: 640px;
+        transform: scale(1.03);
+        transform-origin: top center;
+      }
 
-        .start-area { width: 100%; text-align: center; margin-bottom: 30px; }
-        .btn-start {
-            width: 80%;
-            max-width: 300px;
-            display: block;
-            margin: 0 auto;
-            cursor: pointer;
-            transition: transform 0.1s;
-        }
-        .btn-start:active { transform: scale(0.95); }
+      #avatar-display {
+        width: 340px;
+        height: 340px;
+      }
 
-        /* --- スライダー共通設定 --- */
-        .slider-area, .recommend-area {
-            width: 92%;
-            background: #d0f0f0;
-            padding: 15px 10px;
-            border-radius: 15px;
-            text-align: center;
-            margin: 0 auto 20px auto;
-            position: relative;
-        }
-        .slider-title {
-            font-weight: bold;
-            margin-bottom: 10px;
-            color: #333;
-            text-align: center;
-            font-size: 0.9rem;
-        }
-        .slider-content {
-            display: flex;
-            justify-content: center;
-            gap: 10px;
-            overflow-x: auto;
-            width: 100%;
-            padding-bottom: 5px;
-        }
-        .slider-content::-webkit-scrollbar { display: none; }
+      .item-list {
+        grid-template-columns: repeat(5, 1fr);
+      }
+    }
 
-        .thumb-img {
-            width: 80px; height: 100px;
-            object-fit: cover;
-            border-radius: 5px; border: 2px solid white;
-            background: white; flex-shrink: 0;
-        }
-        .arrow-icon {
-            width: 20px; position: absolute; right: 5px; top: 60%;
-            opacity: 0.5; pointer-events: none;
-        }
+    /* ========== ヘッダー（共通） ========== */
 
-        .item-grid {
-            display: flex; justify-content: center; flex-wrap: wrap; gap: 8px;
-        }
-        .item-box {
-            background: white; border-radius: 8px; padding: 5px;
-            width: 70px; height: 70px;
-            display: flex; align-items: center; justify-content: center;
-        }
+    header {
+      width: 100%;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
 
-        .sns-area { margin: 30px 0; text-align: center; }
-        .sns-icons { display: flex; justify-content: center; gap: 20px; margin-top: 10px;}
-        .sns-icon { width: 50px; }
+    .logo {
+      width: 220px;
+      max-width: 70%;
+    }
 
-        footer {
-            width: 100%; background: #d0f0f0; padding: 30px 0;
-            text-align: center; font-size: 0.8rem; margin-top: auto;
-        }
-        .footer-links {
-            display: grid; grid-template-columns: 1fr 1fr;
-            gap: 10px; text-align: left; width: 80%; margin: 0 auto 30px auto;
-        }
-        .footer-link { color: #555; text-decoration: none; }
-        .banner-creator { width: 90%; max-width: 300px; margin-bottom: 20px; }
+    .hamburger-menu {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 30px;
+      height: 24px;
+      cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 0;
+      border: none;
+      background: none;
+      z-index: 20;
+    }
 
-        /* --- 着せ替え画面（スタイル維持） --- */
-        #maker-screen {
-            display: none; width: 100%; flex-direction: column; align-items: center; padding-top: 20px;
-        }
-        #avatar-display {
-            width: 300px; height: 300px;
-            background-color: #fff; border-radius: 20px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            position: relative; overflow: hidden; margin-bottom: 15px;
-            background-image: linear-gradient(45deg, #eee 25%, transparent 25%, transparent 75%, #eee 75%, #eee), 
-                              linear-gradient(45deg, #eee 25%, transparent 25%, transparent 75%, #eee 75%, #eee);
-            background-size: 20px 20px; background-position: 0 0, 10px 10px;
-        }
-        .avatar-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: contain; pointer-events: none; }
-        #layer-background { z-index: 5; }
-        #layer-hair-back  { z-index: 10; }
-        #layer-body       { z-index: 20; }
-        #layer-eyes       { z-index: 30; }
-        #layer-mouth      { z-index: 35; }
-        #layer-outfit     { z-index: 40; }
-        #layer-hair-front { z-index: 50; }
-        #layer-accessory  { z-index: 60; }
-        #layer-frame      { z-index: 100; }
+    .hamburger-menu span {
+      display: block;
+      width: 100%;
+      height: 3px;
+      background-color: #333;
+      border-radius: 3px;
+    }
 
-        #controls { width: 100%; background: white; padding: 15px; border-radius: 20px 20px 0 0; box-shadow: 0 -2px 10px rgba(0,0,0,0.05); flex-grow: 1; }
-        .tabs { display: flex; gap: 10px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; }
-        .tab-btn { background: #f0f0f0; border: none; padding: 8px 15px; border-radius: 20px; font-weight: bold; color: #888; white-space: nowrap; }
-        .tab-btn.active { background: #ff8fab; color: white; }
-        .item-list { display: none; grid-template-columns: repeat(4, 1fr); gap: 10px; max-height: 300px; overflow-y: auto; padding-bottom: 50px; }
-        .item-list.active { display: grid; }
-        .item-btn { aspect-ratio: 1; background-color: #f9f9f9; border: 2px solid #eee; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; flex-direction: column; text-align: center; padding: 5px; word-break: break-all; }
-        .item-btn:hover, .item-btn:active { border-color: #ff8fab; background-color: #fff0f5; }
-        .action-buttons { display: flex; justify-content: space-between; width: 300px; margin-bottom: 10px; }
-        .btn-action { background: #eee; border: none; padding: 8px 15px; border-radius: 20px; font-size: 0.8rem; color: #555; }
-        .btn-save { background: #ff8fab; color: white; font-weight: bold; padding: 8px 30px; }
-    </style>
+    .drawer-menu {
+      position: absolute;
+      left: 12px;
+      top: 54px;
+      background: #ffffff;
+      border-radius: 10px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      padding: 10px 14px;
+      display: none;
+      z-index: 15;
+    }
+
+    .drawer-menu.open {
+      display: block;
+    }
+
+    .drawer-menu a {
+      display: block;
+      font-size: 0.85rem;
+      color: #333;
+      text-decoration: none;
+      padding: 5px 0;
+    }
+
+    .drawer-menu a + a {
+      border-top: 1px solid #eee;
+    }
+
+    /* ========== HOME 画面 ========== */
+
+    #home-screen {
+      display: block;
+    }
+
+    .main-visual {
+      width: 100%;
+      display: block;
+    }
+
+    .header-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin: 16px 0;
+    }
+
+    .header-btn {
+      width: 45%;
+      max-width: 160px;
+      cursor: pointer;
+    }
+
+    /* お知らせ帯 */
+    .news-ticker {
+      width: 100%;
+      height: 40px;
+      background-image: url("assets/bg_news.png");
+      background-size: 100% 100%;
+      display: flex;
+      align-items: center;
+      overflow: hidden;
+      margin: 0 auto 18px auto;
+      font-size: 0.8rem;
+      color: #333;
+      white-space: nowrap;
+      border-radius: 5px;
+    }
+
+    .news-content {
+      display: inline-block;
+      padding-left: 100%;
+      animation: marquee 15s linear infinite;
+    }
+
+    @keyframes marquee {
+      0% {
+        transform: translate(0, 0);
+      }
+      100% {
+        transform: translate(-100%, 0);
+      }
+    }
+
+    /* 自分の着せ替え（スタート） */
+
+    .start-area {
+      width: 100%;
+      text-align: center;
+      margin: 12px 0 24px;
+    }
+
+    .start-title {
+      font-weight: bold;
+      font-size: 1.2rem;
+      margin-bottom: 6px;
+    }
+
+    .btn-start {
+      width: 80%;
+      max-width: 320px;
+      display: block;
+      margin: 0 auto;
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+
+    .btn-start:active {
+      transform: scale(0.95);
+    }
+
+    /* 水色カード（おすすめ・履歴・オススメ） */
+
+    .card {
+      width: 100%;
+      background: #d0f0f0;
+      padding: 16px 12px;
+      border-radius: 15px;
+      margin-bottom: 18px;
+      position: relative;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+      border: 1px solid rgba(0, 0, 0, 0.03);
+    }
+
+    .card-title {
+      font-weight: bold;
+      margin: 0 0 10px;
+      color: #333;
+      font-size: 0.9rem;
+    }
+
+    .card-title.center {
+      text-align: center;
+    }
+
+    .slider-content {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      overflow-x: auto;
+      width: 100%;
+      padding-bottom: 6px;
+      scrollbar-width: none;
+    }
+
+    .slider-content::-webkit-scrollbar {
+      display: none;
+    }
+
+    .thumb-img {
+      width: 80px;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 8px;
+      border: 2px solid white;
+      background: #fff;
+      flex-shrink: 0;
+    }
+
+    .item-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .item-box {
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* SNS */
+
+    .sns-area {
+      width: 100%;
+      margin: 30px 0 20px;
+      text-align: center;
+    }
+
+    .sns-title {
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    .sns-icons {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      margin-top: 8px;
+    }
+
+    .sns-icon {
+      width: 50px;
+      cursor: pointer;
+    }
+
+    /* フッター */
+
+    footer {
+      width: 100%;
+      background: #d0f0f0;
+      padding: 24px 16px 30px;
+      text-align: center;
+      font-size: 0.8rem;
+      margin-top: auto;
+      box-sizing: border-box;
+    }
+
+    .footer-logo {
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+
+    .footer-links {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      text-align: left;
+      width: 100%;
+      margin: 0 auto 20px;
+    }
+
+    .footer-link {
+      color: #555;
+      text-decoration: none;
+    }
+
+    .banner-creator {
+      width: 90%;
+      max-width: 320px;
+      margin-bottom: 10px;
+    }
+
+    /* ========== 着せ替え画面 ========== */
+
+    #maker-screen {
+      display: none;
+      padding: 10px 16px 24px;
+      background: #ffe5ef;
+      flex: 1;
+    }
+
+    .maker-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+
+    .maker-title {
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+
+    .maker-header-btn {
+      font-size: 0.75rem;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid #ddd;
+      background: #fff;
+      color: #555;
+      cursor: pointer;
+    }
+
+    .maker-main-top {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+
+    .avatar-wrapper {
+      flex: 1;
+      display: flex;
+      justify-content: center;
+    }
+
+    #avatar-display {
+      width: 260px;
+      height: 260px;
+      background-color: #fff;
+      border-radius: 20px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+      position: relative;
+      overflow: hidden;
+      background-image: linear-gradient(
+          45deg,
+          #eee 25%,
+          transparent 25%,
+          transparent 75%,
+          #eee 75%,
+          #eee
+        ),
+        linear-gradient(
+          45deg,
+          #eee 25%,
+          transparent 25%,
+          transparent 75%,
+          #eee 75%,
+          #eee
+        );
+      background-size: 20px 20px;
+      background-position: 0 0, 10px 10px;
+    }
+
+    .avatar-layer {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      pointer-events: none;
+    }
+
+    #layer-background {
+      z-index: 5;
+    }
+    #layer-hair-back {
+      z-index: 10;
+    }
+    #layer-body {
+      z-index: 20;
+    }
+    #layer-eyes {
+      z-index: 30;
+    }
+    #layer-mouth {
+      z-index: 35;
+    }
+    #layer-outfit {
+      z-index: 40;
+    }
+    #layer-hair-front {
+      z-index: 50;
+    }
+    #layer-accessory {
+      z-index: 60;
+    }
+    #layer-frame {
+      z-index: 100;
+    }
+
+    .btn-trash {
+      background: #ffffff;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      padding: 6px 10px;
+      font-size: 0.75rem;
+      color: #555;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .maker-actions {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin: 12px 0 14px;
+    }
+
+    .btn-big {
+      min-width: 120px;
+      padding: 10px 18px;
+      border-radius: 999px;
+      border: none;
+      font-size: 0.9rem;
+      font-weight: bold;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .btn-save-main {
+      background: #ff9fb8;
+      color: #fff;
+    }
+
+    .btn-share-main {
+      background: #ffffff;
+      color: #4a82ff;
+      border: 1px solid #4a82ff;
+    }
+
+    #controls {
+      width: 100%;
+      background: #fff;
+      padding: 12px 12px 16px;
+      border-radius: 18px;
+      box-shadow: 0 -1px 6px rgba(0, 0, 0, 0.08);
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 10px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      scrollbar-width: none;
+    }
+
+    .tabs::-webkit-scrollbar {
+      display: none;
+    }
+
+    .tab-btn {
+      background: #f0f0f0;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-weight: bold;
+      color: #888;
+      white-space: nowrap;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+
+    .tab-btn.active {
+      background: #ff8fab;
+      color: #fff;
+    }
+
+    .item-list {
+      display: none;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      max-height: 280px;
+      overflow-y: auto;
+      padding-bottom: 8px;
+    }
+
+    .item-list.active {
+      display: grid;
+    }
+
+    .item-btn {
+      aspect-ratio: 1;
+      background-color: #f9f9f9;
+      border: 2px solid #eee;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      flex-direction: column;
+      text-align: center;
+      padding: 4px;
+      word-break: break-all;
+      cursor: pointer;
+    }
+
+    .item-btn:hover,
+    .item-btn:active {
+      border-color: #ff8fab;
+      background-color: #fff0f5;
+    }
+  </style>
 </head>
 <body>
-
-<div class="container">
-
+  <div class="app">
+    <!-- ========== HOME 画面 ========== -->
     <div id="home-screen">
-        <header>
-            <div class="hamburger-menu">
-                <span></span>
-                <span></span>
-                <span></span>
-            </div>
-            
-            <img src="assets/logo.png" class="logo" alt="WATASUTE">
-        </header>
+      <header>
+        <button
+          class="hamburger-menu"
+          type="button"
+          aria-label="メニューを開く"
+          aria-expanded="false"
+          onclick="toggleMenu()"
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
 
-        <img src="assets/main_visual.png" class="main-visual" alt="Main Visual">
+        <img src="assets/logo.png" class="logo" alt="WATASUTE ロゴ" />
 
+        <nav id="drawer-menu" class="drawer-menu" aria-hidden="true">
+          <a href="#start-area">自分の着せ替え</a>
+          <a href="#recommend">おすすめアイテム</a>
+          <a href="#sns">公式SNS</a>
+          <a href="#footer">お問い合わせ</a>
+        </nav>
+      </header>
+
+      <img
+        src="assets/main_visual.jpg"
+        class="main-visual"
+        alt="わたすて メインビジュアル"
+      />
+
+      <div class="app-inner">
         <div class="header-buttons">
-            <img src="assets/btn_Q.png" class="header-btn" alt="About">
-            <img src="assets/btn_Howto.png" class="header-btn" alt="How to">
+          <img
+            src="assets/btn_Q.png"
+            class="header-btn"
+            alt="わたすてとは"
+          />
+          <img
+            src="assets/btn_Howto.png"
+            class="header-btn"
+            alt="遊び方 How to"
+          />
         </div>
 
-        <div class="news-ticker">
-            <div class="news-content">
-                🎉 わたすて正式オープン！ クリエイター募集中！ 新着アイテム続々追加予定！
+        <div class="news-ticker" aria-label="お知らせ">
+          <div class="news-content">
+            🎉 わたすてプレオープン！ クリエイター募集中！ 新着アイテム続々追加予定！
+          </div>
+        </div>
+
+        <section id="start-area" class="start-area">
+          <div class="start-title">自分の着せ替え</div>
+          <img
+            src="assets/btn_start.png"
+            class="btn-start"
+            alt="今すぐ作る"
+            onclick="goToMaker()"
+          />
+        </section>
+
+        <section class="card">
+          <h2 class="card-title center">本日のおすすめコーデ</h2>
+          <div class="slider-content">
+            <img
+              src="assets/thumb_rec_1.png"
+              class="thumb-img"
+              alt="おすすめコーデ1"
+            />
+            <img
+              src="assets/thumb_rec_2.png"
+              class="thumb-img"
+              alt="おすすめコーデ2"
+            />
+            <img
+              src="assets/thumb_rec_3.png"
+              class="thumb-img"
+              alt="おすすめコーデ3"
+            />
+          </div>
+        </section>
+
+        <section class="card">
+          <h2 class="card-title">最後の着せ替え履歴</h2>
+          <div class="slider-content">
+            <img
+              src="assets/thumb_history.png"
+              class="thumb-img"
+              alt="最後の着せ替え"
+            />
+          </div>
+        </section>
+
+        <section id="recommend" class="card">
+          <h2 class="card-title">オススメ</h2>
+          <div class="item-grid">
+            <div class="item-box">
+              <img src="assets/item_top_4.png" alt="おすすめアイテム1" />
             </div>
-        </div>
-
-        <div class="start-area">
-            <div style="font-weight:bold; font-size:1.2rem; margin-bottom:5px;">自分の着せ替え</div>
-            <img src="assets/btn_start.png" class="btn-start" alt="Start" onclick="goToMaker()">
-        </div>
-
-        <div class="slider-area">
-            <div class="slider-title">本日のおすすめコーデ</div>
-            <div class="slider-content">
-                <img src="assets/thumb_rec_1.png" class="thumb-img">
-                <img src="assets/thumb_rec_2.png" class="thumb-img">
-                <img src="assets/thumb_rec_3.png" class="thumb-img">
+            <div class="item-box">
+              <img src="assets/item_top_5.png" alt="おすすめアイテム2" />
             </div>
-            <img src="assets/icon_arrow_right.png" class="arrow-icon">
-        </div>
-
-        <div class="slider-area">
-            <div class="slider-title" style="text-align:left; padding-left:10px;">最後の着せ替え履歴</div>
-            <div class="slider-content">
-                <img src="assets/thumb_history.png" class="thumb-img">
+            <div class="item-box">
+              <img src="assets/item_top_6.png" alt="おすすめアイテム3" />
             </div>
-        </div>
+            <!-- 追加したくなったらここにどんどん増やせる -->
+          </div>
+        </section>
 
-        <div class="recommend-area">
-            <div class="slider-title" style="text-align:left; padding-left:10px;">オススメ</div>
-            <div class="item-grid">
-                <div class="item-box"><img src="assets/item_top_4.png"></div>
-                <div class="item-box"><img src="assets/item_top_5.png"></div>
-                <div class="item-box"><img src="assets/item_top_6.png"></div>
-            </div>
-        </div>
+        <section id="sns" class="sns-area">
+          <div class="sns-title">OfficialSNS</div>
+          <div class="sns-icons">
+            <img
+              src="assets/icon_insta.png"
+              class="sns-icon"
+              alt="Instagram"
+            />
+            <img src="assets/icon_x.png" class="sns-icon" alt="X（旧Twitter）" />
+            <img src="assets/icon_line.png" class="sns-icon" alt="LINE公式" />
+          </div>
+          <div style="margin-top: 10px; font-weight: bold">Follow Us! ⤴</div>
+        </section>
+      </div>
 
-        <div class="sns-area">
-            <div class="sns-title">OfficialSNS</div>
-            <div class="sns-icons">
-                <img src="assets/icon_insta.png" class="sns-icon">
-                <img src="assets/icon_x.png" class="sns-icon">
-                <img src="assets/icon_line.png" class="sns-icon">
-            </div>
-            <div style="margin-top:10px; font-weight:bold;">Follow Us! ⤴</div>
+      <footer id="footer">
+        <div class="footer-logo">WATASUTE</div>
+        <div class="footer-links">
+          <a href="#" class="footer-link">おすすめ</a>
+          <a href="#" class="footer-link">gallery</a>
+          <a href="#" class="footer-link">ヘルプ</a>
+          <a href="#" class="footer-link">よくある質問</a>
+          <a href="#" class="footer-link">ガイド</a>
+          <a href="#" class="footer-link">お問い合わせ</a>
+          <a href="#" class="footer-link">メディア関連</a>
         </div>
-
-        <footer>
-            <div class="footer-logo">WATASUTE</div>
-            <div class="footer-links">
-                <a href="#" class="footer-link">おすすめ</a>
-                <a href="#" class="footer-link">Gallery</a>
-                <a href="#" class="footer-link">ヘルプ</a>
-                <a href="#" class="footer-link">よくある質問</a>
-                <a href="#" class="footer-link">ガイド</a>
-                <a href="#" class="footer-link">お問い合わせ</a>
-                <a href="#" class="footer-link">メディア関連</a>
-            </div>
-            <img src="assets/banner_creator.png" class="banner-creator">
-            <div style="margin-top:10px;">© WATASUTE</div>
-        </footer>
+        <img
+          src="assets/banner_creator.png"
+          class="banner-creator"
+          alt="クリエイターさん募集中バナー"
+        />
+        <div style="margin-top: 6px">© WATASUTE</div>
+      </footer>
     </div>
 
+    <!-- ========== 着せ替え画面 ========== -->
     <div id="maker-screen">
-        <header>
-            <img src="assets/logo.png" class="logo" style="width:120px;" alt="WATASUTE">
-            <div style="position:absolute; right:20px; top:50%; transform:translateY(-50%); font-weight:bold; color:#ff8fab; cursor:pointer;" onclick="goHome()">× 閉じる</div>
-        </header>
+      <header class="maker-header">
+        <button
+          type="button"
+          class="maker-header-btn"
+          onclick="goHome()"
+        >
+          ← マイページ
+        </button>
+        <div class="maker-title">自分の着せ替え</div>
+        <button type="button" class="maker-header-btn">所持アイテム</button>
+      </header>
 
-        <div id="avatar-display">
-            <img id="layer-background" class="avatar-layer" src="" alt="">
-            <img id="layer-hair-back" class="avatar-layer" src="assets/hair1_back.png" alt="">
-            <img id="layer-body"      class="avatar-layer" src="assets/body.png" alt="素体">
-            <img id="layer-eyes"      class="avatar-layer" src="assets/eyes1.png" alt="">
-            <img id="layer-mouth"     class="avatar-layer" src="assets/mouth1.png" alt="">
-            <img id="layer-outfit"    class="avatar-layer" src="assets/outfit1.png" alt="">
-            <img id="layer-hair-front"class="avatar-layer" src="assets/hair1_front.png" alt="">
-            <img id="layer-accessory" class="avatar-layer" src="" alt="">
-            <img id="layer-frame"     class="avatar-layer" src="" alt="">
+      <div class="maker-main-top">
+        <div class="avatar-wrapper">
+          <div id="avatar-display">
+            <img id="layer-background" class="avatar-layer" src="" alt="" />
+            <img
+              id="layer-hair-back"
+              class="avatar-layer"
+              src="assets/hair1_back.png"
+              alt=""
+            />
+            <img
+              id="layer-body"
+              class="avatar-layer"
+              src="assets/body.png"
+              alt="素体"
+            />
+            <img
+              id="layer-eyes"
+              class="avatar-layer"
+              src="assets/eyes1.png"
+              alt=""
+            />
+            <img
+              id="layer-mouth"
+              class="avatar-layer"
+              src="assets/mouth1.png"
+              alt=""
+            />
+            <img
+              id="layer-outfit"
+              class="avatar-layer"
+              src="assets/outfit1.png"
+              alt=""
+            />
+            <img
+              id="layer-hair-front"
+              class="avatar-layer"
+              src="assets/hair1_front.png"
+              alt=""
+            />
+            <img id="layer-accessory" class="avatar-layer" src="" alt="" />
+            <img id="layer-frame" class="avatar-layer" src="" alt="" />
+          </div>
         </div>
 
-        <div class="action-buttons">
-            <button class="btn-action" onclick="resetAvatar()">全部脱がす</button>
-            <button class="btn-action btn-save" onclick="downloadImage()">保存</button>
-            <button class="btn-action">シェア</button>
+        <button class="btn-trash" type="button" onclick="resetAvatar()">
+          全部脱がす
+        </button>
+      </div>
+
+      <div class="maker-actions">
+        <button
+          class="btn-big btn-save-main"
+          type="button"
+          onclick="downloadImage()"
+        >
+          ♡ 保存
+        </button>
+        <button class="btn-big btn-share-main" type="button">↗ シェア</button>
+      </div>
+
+      <div id="controls">
+        <div class="tabs">
+          <button
+            class="tab-btn active"
+            type="button"
+            onclick="showTab(this, 'hair-front')"
+          >
+            前髪
+          </button>
+          <button
+            class="tab-btn"
+            type="button"
+            onclick="showTab(this, 'hair-back')"
+          >
+            後髪
+          </button>
+          <button
+            class="tab-btn"
+            type="button"
+            onclick="showTab(this, 'eyes')"
+          >
+            目
+          </button>
+          <button
+            class="tab-btn"
+            type="button"
+            onclick="showTab(this, 'mouth')"
+          >
+            口
+          </button>
+          <button
+            class="tab-btn"
+            type="button"
+            onclick="showTab(this, 'outfit')"
+          >
+            服
+          </button>
+          <button
+            class="tab-btn"
+            type="button"
+            onclick="showTab(this, 'accessory')"
+          >
+            アクセ
+          </button>
         </div>
 
-        <div id="controls">
-            <div class="tabs">
-                <button class="tab-btn active" onclick="showTab('hair-front')">前髪</button>
-                <button class="tab-btn" onclick="showTab('hair-back')">後髪</button>
-                <button class="tab-btn" onclick="showTab('eyes')">目</button>
-                <button class="tab-btn" onclick="showTab('mouth')">口</button>
-                <button class="tab-btn" onclick="showTab('outfit')">服</button>
-                <button class="tab-btn" onclick="showTab('accessory')">アクセ</button>
-            </div>
-
-            <div id="tab-hair-front" class="item-list active">
-                <button class="item-btn" onclick="setPart('layer-hair-front', 'hair1_front')">前髪1</button>
-                <button class="item-btn" onclick="setPart('layer-hair-front', 'hair2_front')">前髪2</button>
-                <button class="item-btn" onclick="setPart('layer-hair-front', 'hair3_front')">前髪3</button>
-                <button class="item-btn" onclick="setPart('layer-hair-front', 'hair4_front')">前髪4</button>
-                <button class="item-btn" onclick="setPart('layer-hair-front', 'hair5_front')">前髪5</button>
-                <button class="item-btn" onclick="setPart('layer-hair-front', 'hair6_front')">前髪6</button>
-                <button class="item-btn" onclick="setPart('layer-hair-front', 'hair7_front')">前髪7</button>
-                <button class="item-btn" onclick="setPart('layer-hair-front', 'hair8_front')">前髪8</button>
-                <button class="item-btn" onclick="setPart('layer-hair-front', 'hair9_front')">前髪9</button>
-                <button class="item-btn" onclick="setPart('layer-hair-front', 'hair10_front')">前髪10</button>
-                <button class="item-btn" onclick="setPart('layer-hair-front', 'hair11_front')">前髪11</button>
-                <button class="item-btn" onclick="setPart('layer-hair-front', 'hair12_front')">前髪12</button>
-                <button class="item-btn" onclick="setPart('layer-hair-front', null)">なし</button>
-            </div>
-
-            <div id="tab-hair-back" class="item-list">
-                <button class="item-btn" onclick="setPart('layer-hair-back', 'hair1_back')">後髪1</button>
-                <button class="item-btn" onclick="setPart('layer-hair-back', 'hair2_back')">後髪2</button>
-                <button class="item-btn" onclick="setPart('layer-hair-back', 'hair3_back')">後髪3</button>
-                <button class="item-btn" onclick="setPart('layer-hair-back', 'hair4_back')">後髪4</button>
-                <button class="item-btn" onclick="setPart('layer-hair-back', 'hair5_back')">後髪5</button>
-                <button class="item-btn" onclick="setPart('layer-hair-back', 'hair6_back')">後髪6</button>
-                <button class="item-btn" onclick="setPart('layer-hair-back', 'hair7_back')">後髪7</button>
-                <button class="item-btn" onclick="setPart('layer-hair-back', 'hair8_back')">後髪8</button>
-                <button class="item-btn" onclick="setPart('layer-hair-back', 'hair9_back')">後髪9</button>
-                <button class="item-btn" onclick="setPart('layer-hair-back', 'hair10_back')">後髪10</button>
-                <button class="item-btn" onclick="setPart('layer-hair-back', 'hair11_back')">後髪11</button>
-                <button class="item-btn" onclick="setPart('layer-hair-back', 'hair12_back')">後髪12</button>
-                <button class="item-btn" onclick="setPart('layer-hair-back', null)">なし</button>
-            </div>
-
-            <div id="tab-eyes" class="item-list">
-                <button class="item-btn" onclick="setPart('layer-eyes', 'eyes1')">目1</button>
-                <button class="item-btn" onclick="setPart('layer-eyes', 'eyes2')">目2</button>
-                <button class="item-btn" onclick="setPart('layer-eyes', 'eyes3')">目3</button>
-                <button class="item-btn" onclick="setPart('layer-eyes', 'eyes4')">目4</button>
-                <button class="item-btn" onclick="setPart('layer-eyes', 'eyes5')">目5</button>
-                <button class="item-btn" onclick="setPart('layer-eyes', 'eyes6')">目6</button>
-                <button class="item-btn" onclick="setPart('layer-eyes', 'eyes7')">目7</button>
-                <button class="item-btn" onclick="setPart('layer-eyes', 'eyes8')">目8</button>
-                <button class="item-btn" onclick="setPart('layer-eyes', 'eyes9')">目9</button>
-                <button class="item-btn" onclick="setPart('layer-eyes', 'eyes10')">目10</button>
-                <button class="item-btn" onclick="setPart('layer-eyes', 'eyes11')">目11</button>
-                <button class="item-btn" onclick="setPart('layer-eyes', 'eyes12')">目12</button>
-                <button class="item-btn" onclick="setPart('layer-eyes', 'eyes13')">目13</button>
-                <button class="item-btn" onclick="setPart('layer-eyes', 'eyes14')">目14</button>
-                <button class="item-btn" onclick="setPart('layer-eyes', null)">なし</button>
-            </div>
-
-            <div id="tab-mouth" class="item-list">
-                <button class="item-btn" onclick="setPart('layer-mouth', 'mouth1')">口1</button>
-                <button class="item-btn" onclick="setPart('layer-mouth', 'mouth2')">口2</button>
-                <button class="item-btn" onclick="setPart('layer-mouth', 'mouth3')">口3</button>
-                <button class="item-btn" onclick="setPart('layer-mouth', 'mouth4')">口4</button>
-                <button class="item-btn" onclick="setPart('layer-mouth', 'mouth5')">口5</button>
-                <button class="item-btn" onclick="setPart('layer-mouth', 'mouth6')">口6</button>
-                <button class="item-btn" onclick="setPart('layer-mouth', null)">なし</button>
-            </div>
-
-            <div id="tab-outfit" class="item-list">
-                <button class="item-btn" onclick="setPart('layer-outfit', 'outfit1')">服1</button>
-                <button class="item-btn" onclick="setPart('layer-outfit', 'outfit2')">服2</button>
-                <button class="item-btn" onclick="setPart('layer-outfit', 'outfit3')">服3</button>
-                <button class="item-btn" onclick="setPart('layer-outfit', 'outfit4')">服4</button>
-                <button class="item-btn" onclick="setPart('layer-outfit', 'outfit5')">服5</button>
-                <button class="item-btn" onclick="setPart('layer-outfit', 'outfit6')">服6</button>
-                <button class="item-btn" onclick="setPart('layer-outfit', 'outfit7')">服7</button>
-                <button class="item-btn" onclick="setPart('layer-outfit', 'outfit8')">服8</button>
-                <button class="item-btn" onclick="setPart('layer-outfit', 'outfit9')">服9</button>
-                <button class="item-btn" onclick="setPart('layer-outfit', 'outfit10')">服10</button>
-                <button class="item-btn" onclick="setPart('layer-outfit', 'outfit11')">服11</button>
-                <button class="item-btn" onclick="setPart('layer-outfit', 'outfit12')">服12</button>
-                <button class="item-btn" onclick="setPart('layer-outfit', 'outfit13')">服13</button>
-                <button class="item-btn" onclick="setPart('layer-outfit', 'outfit14')">服14</button>
-                <button class="item-btn" onclick="setPart('layer-outfit', 'outfit15')">服15</button>
-                <button class="item-btn" onclick="setPart('layer-outfit', null)">脱ぐ</button>
-            </div>
-
-            <div id="tab-accessory" class="item-list">
-                <button class="item-btn" onclick="setPart('layer-accessory', 'accessory1')">アクセ1</button>
-                <button class="item-btn" onclick="setPart('layer-accessory', 'accessory2')">アクセ2</button>
-                <button class="item-btn" onclick="setPart('layer-accessory', 'accessory3')">アクセ3</button>
-                <button class="item-btn" onclick="setPart('layer-accessory', null)">なし</button>
-            </div>
+        <!-- 前髪 -->
+        <div id="tab-hair-front" class="item-list active">
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-hair-front', 'hair1_front')"
+          >
+            前髪1
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-hair-front', 'hair2_front')"
+          >
+            前髪2
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-hair-front', 'hair3_front')"
+          >
+            前髪3
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-hair-front', 'hair4_front')"
+          >
+            前髪4
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-hair-front', 'hair5_front')"
+          >
+            前髪5
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-hair-front', 'hair6_front')"
+          >
+            前髪6
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-hair-front', 'hair7_front')"
+          >
+            前髪7
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-hair-front', 'hair8_front')"
+          >
+            前髪8
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-hair-front', 'hair9_front')"
+          >
+            前髪9
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-hair-front', 'hair10_front')"
+          >
+            前髪10
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-hair-front', 'hair11_front')"
+          >
+            前髪11
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-hair-front', 'hair12_front')"
+          >
+            前髪12
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-hair-front', null)"
+          >
+            なし
+          </button>
         </div>
+
+        <!-- 後髪 -->
+        <div id="tab-hair-back" class="item-list">
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-hair-back', 'hair1_back')"
+          >
+            後髪1
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-hair-back', 'hair2_back')"
+          >
+            後髪2
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-hair-back', 'hair3_back')"
+          >
+            後髪3
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-hair-back', 'hair4_back')"
+          >
+            後髪4
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-hair-back', 'hair5_back')"
+          >
+            後髪5
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-hair-back', 'hair6_back')"
+          >
+            後髪6
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-hair-back', 'hair7_back')"
+          >
+            後髪7
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-hair-back', 'hair8_back')"
+          >
+            後髪8
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-hair-back', 'hair9_back')"
+          >
+            後髪9
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-hair-back', 'hair10_back')"
+          >
+            後髪10
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-hair-back', 'hair11_back')"
+          >
+            後髪11
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-hair-back', 'hair12_back')"
+          >
+            後髪12
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-hair-back', null)"
+          >
+            なし
+          </button>
+        </div>
+
+        <!-- 目 -->
+        <div id="tab-eyes" class="item-list">
+          <!-- eyes1〜eyes14 まで同じパターン -->
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-eyes', 'eyes1')"
+          >
+            目1
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-eyes', 'eyes2')"
+          >
+            目2
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-eyes', 'eyes3')"
+          >
+            目3
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-eyes', 'eyes4')"
+          >
+            目4
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-eyes', 'eyes5')"
+          >
+            目5
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-eyes', 'eyes6')"
+          >
+            目6
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-eyes', 'eyes7')"
+          >
+            目7
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-eyes', 'eyes8')"
+          >
+            目8
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-eyes', 'eyes9')"
+          >
+            目9
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-eyes', 'eyes10')"
+          >
+            目10
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-eyes', 'eyes11')"
+          >
+            目11
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-eyes', 'eyes12')"
+          >
+            目12
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-eyes', 'eyes13')"
+          >
+            目13
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-eyes', 'eyes14')"
+          >
+            目14
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-eyes', null)"
+          >
+            なし
+          </button>
+        </div>
+
+        <!-- 口 -->
+        <div id="tab-mouth" class="item-list">
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-mouth', 'mouth1')"
+          >
+            口1
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-mouth', 'mouth2')"
+          >
+            口2
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-mouth', 'mouth3')"
+          >
+            口3
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-mouth', 'mouth4')"
+          >
+            口4
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-mouth', 'mouth5')"
+          >
+            口5
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-mouth', 'mouth6')"
+          >
+            口6
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-mouth', null)"
+          >
+            なし
+          </button>
+        </div>
+
+        <!-- 服 -->
+        <div id="tab-outfit" class="item-list">
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-outfit', 'outfit1')"
+          >
+            服1
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-outfit', 'outfit2')"
+          >
+            服2
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-outfit', 'outfit3')"
+          >
+            服3
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-outfit', 'outfit4')"
+          >
+            服4
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-outfit', 'outfit5')"
+          >
+            服5
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-outfit', 'outfit6')"
+          >
+            服6
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-outfit', 'outfit7')"
+          >
+            服7
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-outfit', 'outfit8')"
+          >
+            服8
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-outfit', 'outfit9')"
+          >
+            服9
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-outfit', 'outfit10')"
+          >
+            服10
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-outfit', 'outfit11')"
+          >
+            服11
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-outfit', 'outfit12')"
+          >
+            服12
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-outfit', 'outfit13')"
+          >
+            服13
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-outfit', 'outfit14')"
+          >
+            服14
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-outfit', 'outfit15')"
+          >
+            服15
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-outfit', null)"
+          >
+            脱ぐ
+          </button>
+        </div>
+
+        <!-- アクセサリ -->
+        <div id="tab-accessory" class="item-list">
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-accessory', 'accessory1')"
+          >
+            アクセ1
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-accessory', 'accessory2')"
+          >
+            アクセ2
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-accessory', 'accessory3')"
+          >
+            アクセ3
+          </button>
+          <button
+            class="item-btn"
+            type="button"
+            onclick="setPart('layer-accessory', null)"
+          >
+            なし
+          </button>
+        </div>
+      </div>
     </div>
+  </div>
 
-</div>
-
-<script>
+  <script>
     function goToMaker() {
-        document.getElementById('home-screen').style.display = 'none';
-        document.getElementById('maker-screen').style.display = 'flex';
-        window.scrollTo(0,0);
+      document.getElementById("home-screen").style.display = "none";
+      document.getElementById("maker-screen").style.display = "block";
+      window.scrollTo(0, 0);
     }
-    function goHome() {
-        document.getElementById('maker-screen').style.display = 'none';
-        document.getElementById('home-screen').style.display = 'block';
-        window.scrollTo(0,0);
-    }
-    function showTab(tabName) {
-        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
-        document.querySelectorAll('.item-list').forEach(list => list.classList.remove('active'));
-        event.target.classList.add('active');
-        document.getElementById('tab-' + tabName).classList.add('active');
-    }
-    function setPart(layerId, imageName) {
-        const layer = document.getElementById(layerId);
-        if (imageName) {
-            layer.src = `assets/${imageName}.png`;
-            layer.style.display = 'block';
-        } else {
-            layer.src = '';
-            layer.style.display = 'none';
-        }
-    }
-    function resetAvatar() {
-        const layers = document.querySelectorAll('.avatar-layer');
-        layers.forEach(img => {
-            if (img.id !== 'layer-body') {
-                img.style.display = 'none';
-                img.src = '';
-            }
-        });
-    }
-    function downloadImage() {
-        try {
-            const canvas = document.createElement('canvas');
-            const ctx = canvas.getContext('2d');
-            const bodyImg = document.getElementById('layer-body');
-            if (!bodyImg || bodyImg.naturalWidth === 0) {
-                canvas.width = 1000; canvas.height = 1500;
-            } else {
-                canvas.width = bodyImg.naturalWidth;
-                canvas.height = bodyImg.naturalHeight;
-            }
-            const layerIds = ['layer-background', 'layer-hair-back', 'layer-body', 'layer-eyes', 'layer-mouth', 'layer-outfit', 'layer-hair-front', 'layer-accessory', 'layer-frame'];
-            let itemsDrawn = 0;
-            layerIds.forEach(id => {
-                const img = document.getElementById(id);
-                if (img && img.style.display !== 'none' && img.src && img.naturalWidth > 0) {
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    itemsDrawn++;
-                }
-            });
-            if (itemsDrawn === 0) {
-                alert("画像が表示されていません");
-                return;
-            }
-            const link = document.createElement('a');
-            link.download = 'watasute_avatar.png';
-            link.href = canvas.toDataURL('image/png');
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        } catch (e) {
-            alert("エラーが発生しました: " + e.message);
-        }
-    }
-</script>
 
+    function goHome() {
+      document.getElementById("maker-screen").style.display = "none";
+      document.getElementById("home-screen").style.display = "block";
+      window.scrollTo(0, 0);
+    }
+
+    function toggleMenu() {
+      const btn = document.querySelector(".hamburger-menu");
+      const menu = document.getElementById("drawer-menu");
+      const isOpen = menu.classList.toggle("open");
+      btn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+      menu.setAttribute("aria-hidden", isOpen ? "false" : "true");
+    }
+
+    function showTab(button, tabName) {
+      document
+        .querySelectorAll(".tab-btn")
+        .forEach((btn) => btn.classList.remove("active"));
+      document
+        .querySelectorAll(".item-list")
+        .forEach((list) => list.classList.remove("active"));
+      button.classList.add("active");
+      document.getElementById("tab-" + tabName).classList.add("active");
+    }
+
+    function setPart(layerId, imageName) {
+      const layer = document.getElementById(layerId);
+      if (imageName) {
+        layer.src = `assets/${imageName}.png`;
+        layer.style.display = "block";
+      } else {
+        layer.src = "";
+        layer.style.display = "none";
+      }
+    }
+
+    function resetAvatar() {
+      const layers = document.querySelectorAll(".avatar-layer");
+      layers.forEach((img) => {
+        if (img.id !== "layer-body") {
+          img.style.display = "none";
+          img.src = "";
+        }
+      });
+    }
+
+    function downloadImage() {
+      try {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        const bodyImg = document.getElementById("layer-body");
+        if (!bodyImg || bodyImg.naturalWidth === 0) {
+          canvas.width = 1000;
+          canvas.height = 1500;
+        } else {
+          canvas.width = bodyImg.naturalWidth;
+          canvas.height = bodyImg.naturalHeight;
+        }
+        const layerIds = [
+          "layer-background",
+          "layer-hair-back",
+          "layer-body",
+          "layer-eyes",
+          "layer-mouth",
+          "layer-outfit",
+          "layer-hair-front",
+          "layer-accessory",
+          "layer-frame",
+        ];
+        let itemsDrawn = 0;
+        layerIds.forEach((id) => {
+          const img = document.getElementById(id);
+          if (
+            img &&
+            img.style.display !== "none" &&
+            img.src &&
+            img.naturalWidth > 0
+          ) {
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            itemsDrawn++;
+          }
+        });
+        if (itemsDrawn === 0) {
+          alert("画像が表示されていません");
+          return;
+        }
+        const link = document.createElement("a");
+        link.download = "watasute_avatar.png";
+        link.href = canvas.toDataURL("image/png");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } catch (e) {
+        alert("エラーが発生しました: " + e.message);
+      }
+    }
+  </script>
 </body>
 </html>
