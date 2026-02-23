@@ -301,6 +301,13 @@
       object-fit:cover;
       z-index:1;
       display:none;
+      /* 撮影中は基本隠す */
+body.shoot-fullscreen #controls{ display:none; }
+
+/* でも “🧩アイテム” を押した時だけ出す */
+body.shoot-fullscreen.controls-open #controls{
+  display:block;
+}
     }
 
     /* ★追加：キャラ全体を動かす（ドラッグ/ピンチ） */
@@ -488,6 +495,21 @@
       z-index: 300;
       margin: 0;
       padding: 10px 12px;
+      /* 撮影モード中は着せ替えパネルを隠す */
+body.shoot-fullscreen #controls{
+  display: none;
+}
+
+/* 撮影モード中はボタン列を一番下に固定（押せるように） */
+body.shoot-fullscreen .maker-actions{
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 12px;
+  z-index: 400;
+  margin: 0;
+  padding: 10px 12px;
+}
     }
   </style>
 </head>
@@ -628,6 +650,7 @@
         <button class="btn-big btn-share-main" type="button" onclick="startCamera()">カメラON</button>
         <button class="btn-big btn-share-main" type="button" onclick="switchCamera()">🔄 切替</button>
         <button class="btn-big btn-save-main" type="button" onclick="captureAndShare()">📸 撮影して保存</button>
+        <button class="btn-big btn-share-main" type="button" onclick="toggleControls()">🧩 アイテム</button>
       </div>
 
       <div id="controls">
@@ -736,6 +759,12 @@
   </div>
 
   <script>
+    let controlsOpen = false;
+
+function toggleControls(){
+  controlsOpen = !controlsOpen;
+  document.body.classList.toggle("controls-open", controlsOpen);
+}
     function goToMaker() {
   document.getElementById("home-screen").style.display = "none";
   document.getElementById("maker-screen").style.display = "block";
