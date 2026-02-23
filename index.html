@@ -12,6 +12,8 @@
     /* ========== 共通リセット ========== */
     * { box-sizing: border-box; }
 
+    html, body { height: 100%; }
+
     body {
       font-family: "Helvetica Neue", Arial, sans-serif;
       margin: 0;
@@ -44,7 +46,6 @@
 
     @media (min-width: 900px) {
       .app { max-width: 640px; transform: scale(1.03); transform-origin: top center; }
-      #avatar-display { width: 340px; height: 340px; }
       .item-list { grid-template-columns: repeat(5, 1fr); }
     }
 
@@ -111,7 +112,6 @@
 
     /* ========== HOME 画面 ========== */
     #home-screen { display: block; }
-
     .main-visual { width: 100%; display: block; }
 
     .header-buttons {
@@ -285,35 +285,35 @@
       box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
       position: relative;
       overflow: hidden;
-      background-image: linear-gradient(45deg, #eee 25%, transparent 25%, transparent 75%, #eee 75%, #eee),
+      background-image:
+        linear-gradient(45deg, #eee 25%, transparent 25%, transparent 75%, #eee 75%, #eee),
         linear-gradient(45deg, #eee 25%, transparent 25%, transparent 75%, #eee 75%, #eee);
       background-size: 20px 20px;
       background-position: 0 0, 10px 10px;
     }
-/* ★追加：カメラ映像（撮影モードで表示） */
-#camera{
-  position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
-  object-fit:cover;
-  z-index:1;
-  display:none; /* ←撮影モードOFFでは隠す */
-}
 
-/* ★追加：キャラ全体を動かす（ドラッグ/ピンチ） */
-#avatar-group{
-  position:absolute;
-  inset:0;
-  z-index:10;
-  transform: translate(0px, 0px) scale(1);
-  transform-origin: 50% 50%;
-  touch-action: none;
-  cursor: grab;
-}
-#avatar-group:active{ cursor: grabbing; }
-    
-    #avatar-group:active { cursor: grabbing; }
+    /* ★追加：カメラ映像（撮影モードで表示） */
+    #camera{
+      position:absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      z-index:1;
+      display:none;
+    }
+
+    /* ★追加：キャラ全体を動かす（ドラッグ/ピンチ） */
+    #avatar-group{
+      position:absolute;
+      inset:0;
+      z-index:10;
+      transform: translate(0px, 0px) scale(1);
+      transform-origin: 50% 50%;
+      touch-action: none;
+      cursor: grab;
+    }
+    #avatar-group:active{ cursor: grabbing; }
 
     .avatar-layer {
       position: absolute;
@@ -438,57 +438,57 @@
 
     .item-btn:hover,
     .item-btn:active { border-color: #ff8fab; background-color: #fff0f5; }
-/* ===== フル画面撮影レイアウト ===== */
-html, body { height: 100%; }
-body { margin: 0; }
-.app { max-width: 100%; box-shadow: none; }
 
-/* maker画面をフル画面に */
-#maker-screen{
-  padding: 0;
-  min-height: 100vh;
-}
+    /* ===== フル画面撮影レイアウト（makerだけ） ===== */
+    body.fullscreen-maker { justify-content: flex-start; } /* 画面上から使う */
 
-/* ステージ（カメラ＋キャラ）は画面全体 */
-#avatar-display{
-  width: 100%;
-  height: 100vh;
-  min-height: 100vh;
-  border-radius: 0;
-}
+    body.fullscreen-maker .app {
+      max-width: 100%;
+      box-shadow: none;
+    }
 
-/* 上ヘッダーを重ねる（任意） */
-.maker-header{
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 300;
-  background: rgba(255,255,255,0.85);
-  backdrop-filter: blur(6px);
-}
+    body.fullscreen-maker #maker-screen{
+      padding: 0;
+      min-height: 100vh;
+    }
 
-/* 下の操作パネルを固定 */
-#controls{
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  z-index: 300;
-  margin: 0;
-  border-radius: 18px 18px 0 0;
-}
+    body.fullscreen-maker #avatar-display{
+      width: 100%;
+      height: 100vh;
+      min-height: 100vh;
+      border-radius: 0;
+      box-shadow: none;
+    }
 
-/* ボタン列も下に固定したいなら（任意） */
-.maker-actions{
-  position: fixed;
-  left: 0;
-  right: 0;
-  bottom: 170px; /* controlsの上に乗せる。環境で調整 */
-  z-index: 300;
-  margin: 0;
-  padding: 10px 12px;
-}
+    body.fullscreen-maker .maker-header{
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 300;
+      background: rgba(255,255,255,0.85);
+      backdrop-filter: blur(6px);
+    }
+
+    body.fullscreen-maker #controls{
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 300;
+      margin: 0;
+      border-radius: 18px 18px 0 0;
+    }
+
+    body.fullscreen-maker .maker-actions{
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 170px;
+      z-index: 300;
+      margin: 0;
+      padding: 10px 12px;
+    }
   </style>
 </head>
 <body>
@@ -503,9 +503,7 @@ body { margin: 0; }
           aria-expanded="false"
           onclick="toggleMenu()"
         >
-          <span></span>
-          <span></span>
-          <span></span>
+          <span></span><span></span><span></span>
         </button>
 
         <img src="assets/logo.png" class="logo" alt="WATASUTE ロゴ" />
@@ -518,11 +516,7 @@ body { margin: 0; }
         </nav>
       </header>
 
-      <img
-        src="assets/main_visual.png"
-        class="main-visual"
-        alt="わたすて メインビジュアル"
-      />
+      <img src="assets/main_visual.png" class="main-visual" alt="わたすて メインビジュアル" />
 
       <div class="app-inner">
         <div class="header-buttons">
@@ -598,160 +592,156 @@ body { margin: 0; }
       </footer>
     </div>
 
-  <!-- ========== 着せ替え画面 ========== -->
-<div id="maker-screen">
-  <header class="maker-header">
-    <button type="button" class="maker-header-btn" onclick="goHome()">← マイページ</button>
-    <div class="maker-title">自分の着せ替え</div>
-    <button type="button" class="maker-header-btn">所持アイテム</button>
-  </header>
+    <!-- ========== 着せ替え画面 ========== -->
+    <div id="maker-screen">
+      <header class="maker-header">
+        <button type="button" class="maker-header-btn" onclick="goHome()">← マイページ</button>
+        <div class="maker-title">自分の着せ替え</div>
+        <button type="button" class="maker-header-btn">所持アイテム</button>
+      </header>
 
-  <div class="maker-main-top">
-    <div class="avatar-wrapper">
-      <div id="avatar-display">
-        <!-- ★カメラ映像（撮影モードで表示） -->
-        <video id="camera" autoplay playsinline muted></video>
+      <div class="maker-main-top">
+        <div class="avatar-wrapper">
+          <div id="avatar-display">
+            <video id="camera" autoplay playsinline muted></video>
 
-        <!-- ★キャラをまとめて動かす箱（ドラッグ/ピンチ対象） -->
-        <div id="avatar-group">
-          <img id="layer-background" class="avatar-layer" src="" alt="" />
-          <img id="layer-hair-back" class="avatar-layer" src="assets/hair1_back.png" alt="" />
-          <img id="layer-body" class="avatar-layer" src="assets/body.png" alt="素体" />
-          <img id="layer-eyes" class="avatar-layer" src="assets/eyes1.png" alt="" />
-          <img id="layer-mouth" class="avatar-layer" src="assets/mouth1.png" alt="" />
-          <img id="layer-outfit" class="avatar-layer" src="assets/outfit1.png" alt="" />
-          <img id="layer-hair-front" class="avatar-layer" src="assets/hair1_front.png" alt="" />
-          <img id="layer-accessory" class="avatar-layer" src="" alt="" />
-          <img id="layer-frame" class="avatar-layer" src="" alt="" />
+            <div id="avatar-group">
+              <img id="layer-background" class="avatar-layer" src="" alt="" />
+              <img id="layer-hair-back" class="avatar-layer" src="assets/hair1_back.png" alt="" />
+              <img id="layer-body" class="avatar-layer" src="assets/body.png" alt="素体" />
+              <img id="layer-eyes" class="avatar-layer" src="assets/eyes1.png" alt="" />
+              <img id="layer-mouth" class="avatar-layer" src="assets/mouth1.png" alt="" />
+              <img id="layer-outfit" class="avatar-layer" src="assets/outfit1.png" alt="" />
+              <img id="layer-hair-front" class="avatar-layer" src="assets/hair1_front.png" alt="" />
+              <img id="layer-accessory" class="avatar-layer" src="" alt="" />
+              <img id="layer-frame" class="avatar-layer" src="" alt="" />
+            </div>
+          </div>
+        </div>
+
+        <button class="btn-trash" type="button" onclick="resetAvatar()">全部脱がす</button>
+      </div>
+
+      <div class="maker-actions">
+        <button class="btn-big btn-share-main" type="button" onclick="downloadImage()">♡ 保存</button>
+        <button class="btn-big btn-share-main" type="button" onclick="toggleShootMode()">📷 撮影モード</button>
+        <button class="btn-big btn-share-main" type="button" onclick="startCamera()">カメラON</button>
+        <button class="btn-big btn-share-main" type="button" onclick="switchCamera()">🔄 切替</button>
+        <button class="btn-big btn-save-main" type="button" onclick="captureAndShare()">📸 撮影して保存</button>
+      </div>
+
+      <div id="controls">
+        <div class="tabs">
+          <button class="tab-btn active" type="button" onclick="showTab(this, 'hair-front')">前髪</button>
+          <button class="tab-btn" type="button" onclick="showTab(this, 'hair-back')">後髪</button>
+          <button class="tab-btn" type="button" onclick="showTab(this, 'eyes')">目</button>
+          <button class="tab-btn" type="button" onclick="showTab(this, 'mouth')">口</button>
+          <button class="tab-btn" type="button" onclick="showTab(this, 'outfit')">服</button>
+          <button class="tab-btn" type="button" onclick="showTab(this, 'accessory')">アクセ</button>
+        </div>
+
+        <!-- 前髪 -->
+        <div id="tab-hair-front" class="item-list active">
+          <button class="item-btn" type="button" onclick="setPart('layer-hair-front', 'hair1_front')">前髪1</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-hair-front', 'hair2_front')">前髪2</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-hair-front', 'hair3_front')">前髪3</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-hair-front', 'hair4_front')">前髪4</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-hair-front', 'hair5_front')">前髪5</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-hair-front', 'hair6_front')">前髪6</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-hair-front', 'hair7_front')">前髪7</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-hair-front', 'hair8_front')">前髪8</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-hair-front', 'hair9_front')">前髪9</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-hair-front', 'hair10_front')">前髪10</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-hair-front', 'hair11_front')">前髪11</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-hair-front', 'hair12_front')">前髪12</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-hair-front', null)">なし</button>
+        </div>
+
+        <!-- 後髪 -->
+        <div id="tab-hair-back" class="item-list">
+          <button class="item-btn" type="button" onclick="setPart('layer-hair-back', 'hair1_back')">後髪1</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-hair-back', 'hair2_back')">後髪2</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-hair-back', 'hair3_back')">後髪3</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-hair-back', 'hair4_back')">後髪4</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-hair-back', 'hair5_back')">後髪5</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-hair-back', 'hair6_back')">後髪6</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-hair-back', 'hair7_back')">後髪7</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-hair-back', 'hair8_back')">後髪8</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-hair-back', 'hair9_back')">後髪9</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-hair-back', 'hair10_back')">後髪10</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-hair-back', 'hair11_back')">後髪11</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-hair-back', 'hair12_back')">後髪12</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-hair-back', null)">なし</button>
+        </div>
+
+        <!-- 目 -->
+        <div id="tab-eyes" class="item-list">
+          <button class="item-btn" type="button" onclick="setPart('layer-eyes', 'eyes1')">目1</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-eyes', 'eyes2')">目2</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-eyes', 'eyes3')">目3</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-eyes', 'eyes4')">目4</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-eyes', 'eyes5')">目5</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-eyes', 'eyes6')">目6</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-eyes', 'eyes7')">目7</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-eyes', 'eyes8')">目8</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-eyes', 'eyes9')">目9</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-eyes', 'eyes10')">目10</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-eyes', 'eyes11')">目11</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-eyes', 'eyes12')">目12</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-eyes', 'eyes13')">目13</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-eyes', 'eyes14')">目14</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-eyes', null)">なし</button>
+        </div>
+
+        <!-- 口 -->
+        <div id="tab-mouth" class="item-list">
+          <button class="item-btn" type="button" onclick="setPart('layer-mouth', 'mouth1')">口1</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-mouth', 'mouth2')">口2</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-mouth', 'mouth3')">口3</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-mouth', 'mouth4')">口4</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-mouth', 'mouth5')">口5</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-mouth', 'mouth6')">口6</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-mouth', null)">なし</button>
+        </div>
+
+        <!-- 服 -->
+        <div id="tab-outfit" class="item-list">
+          <button class="item-btn" type="button" onclick="setPart('layer-outfit', 'outfit1')">服1</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-outfit', 'outfit2')">服2</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-outfit', 'outfit3')">服3</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-outfit', 'outfit4')">服4</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-outfit', 'outfit5')">服5</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-outfit', 'outfit6')">服6</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-outfit', 'outfit7')">服7</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-outfit', 'outfit8')">服8</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-outfit', 'outfit9')">服9</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-outfit', 'outfit10')">服10</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-outfit', 'outfit11')">服11</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-outfit', 'outfit12')">服12</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-outfit', 'outfit13')">服13</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-outfit', 'outfit14')">服14</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-outfit', 'outfit15')">服15</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-outfit', null)">脱ぐ</button>
+        </div>
+
+        <!-- アクセサリ -->
+        <div id="tab-accessory" class="item-list">
+          <button class="item-btn" type="button" onclick="setPart('layer-accessory', 'accessory1')">アクセ1</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-accessory', 'accessory2')">アクセ2</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-accessory', 'accessory3')">アクセ3</button>
+          <button class="item-btn" type="button" onclick="setPart('layer-accessory', null)">なし</button>
         </div>
       </div>
     </div>
-
-    <button class="btn-trash" type="button" onclick="resetAvatar()">全部脱がす</button>
   </div>
 
-  <div class="maker-actions">
-    <!-- 背景なし保存（従来） -->
-    <button class="btn-big btn-share-main" type="button" onclick="downloadImage()">♡ 保存</button>
-
-    <!-- 撮影系 -->
-    <button class="btn-big btn-share-main" type="button" onclick="toggleShootMode()">📷 撮影モード</button>
-    <button class="btn-big btn-share-main" type="button" onclick="startCamera()">カメラON</button>
-    <button class="btn-big btn-share-main" type="button" onclick="switchCamera()">🔄 切替</button>
-    <button class="btn-big btn-save-main" type="button" onclick="captureAndDownload()">📸 撮影してDL</button>
-  </div>
-
-  <div id="controls">
-    <div class="tabs">
-      <button class="tab-btn active" type="button" onclick="showTab(this, 'hair-front')">前髪</button>
-      <button class="tab-btn" type="button" onclick="showTab(this, 'hair-back')">後髪</button>
-      <button class="tab-btn" type="button" onclick="showTab(this, 'eyes')">目</button>
-      <button class="tab-btn" type="button" onclick="showTab(this, 'mouth')">口</button>
-      <button class="tab-btn" type="button" onclick="showTab(this, 'outfit')">服</button>
-      <button class="tab-btn" type="button" onclick="showTab(this, 'accessory')">アクセ</button>
-    </div>
-
-    <!-- 前髪 -->
-    <div id="tab-hair-front" class="item-list active">
-      <button class="item-btn" type="button" onclick="setPart('layer-hair-front', 'hair1_front')">前髪1</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-hair-front', 'hair2_front')">前髪2</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-hair-front', 'hair3_front')">前髪3</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-hair-front', 'hair4_front')">前髪4</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-hair-front', 'hair5_front')">前髪5</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-hair-front', 'hair6_front')">前髪6</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-hair-front', 'hair7_front')">前髪7</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-hair-front', 'hair8_front')">前髪8</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-hair-front', 'hair9_front')">前髪9</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-hair-front', 'hair10_front')">前髪10</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-hair-front', 'hair11_front')">前髪11</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-hair-front', 'hair12_front')">前髪12</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-hair-front', null)">なし</button>
-    </div>
-
-    <!-- 後髪 -->
-    <div id="tab-hair-back" class="item-list">
-      <button class="item-btn" type="button" onclick="setPart('layer-hair-back', 'hair1_back')">後髪1</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-hair-back', 'hair2_back')">後髪2</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-hair-back', 'hair3_back')">後髪3</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-hair-back', 'hair4_back')">後髪4</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-hair-back', 'hair5_back')">後髪5</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-hair-back', 'hair6_back')">後髪6</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-hair-back', 'hair7_back')">後髪7</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-hair-back', 'hair8_back')">後髪8</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-hair-back', 'hair9_back')">後髪9</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-hair-back', 'hair10_back')">後髪10</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-hair-back', 'hair11_back')">後髪11</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-hair-back', 'hair12_back')">後髪12</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-hair-back', null)">なし</button>
-    </div>
-
-    <!-- 目 -->
-    <div id="tab-eyes" class="item-list">
-      <button class="item-btn" type="button" onclick="setPart('layer-eyes', 'eyes1')">目1</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-eyes', 'eyes2')">目2</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-eyes', 'eyes3')">目3</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-eyes', 'eyes4')">目4</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-eyes', 'eyes5')">目5</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-eyes', 'eyes6')">目6</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-eyes', 'eyes7')">目7</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-eyes', 'eyes8')">目8</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-eyes', 'eyes9')">目9</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-eyes', 'eyes10')">目10</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-eyes', 'eyes11')">目11</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-eyes', 'eyes12')">目12</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-eyes', 'eyes13')">目13</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-eyes', 'eyes14')">目14</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-eyes', null)">なし</button>
-    </div>
-
-    <!-- 口 -->
-    <div id="tab-mouth" class="item-list">
-      <button class="item-btn" type="button" onclick="setPart('layer-mouth', 'mouth1')">口1</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-mouth', 'mouth2')">口2</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-mouth', 'mouth3')">口3</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-mouth', 'mouth4')">口4</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-mouth', 'mouth5')">口5</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-mouth', 'mouth6')">口6</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-mouth', null)">なし</button>
-    </div>
-
-    <!-- 服 -->
-    <div id="tab-outfit" class="item-list">
-      <button class="item-btn" type="button" onclick="setPart('layer-outfit', 'outfit1')">服1</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-outfit', 'outfit2')">服2</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-outfit', 'outfit3')">服3</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-outfit', 'outfit4')">服4</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-outfit', 'outfit5')">服5</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-outfit', 'outfit6')">服6</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-outfit', 'outfit7')">服7</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-outfit', 'outfit8')">服8</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-outfit', 'outfit9')">服9</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-outfit', 'outfit10')">服10</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-outfit', 'outfit11')">服11</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-outfit', 'outfit12')">服12</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-outfit', 'outfit13')">服13</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-outfit', 'outfit14')">服14</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-outfit', 'outfit15')">服15</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-outfit', null)">脱ぐ</button>
-    </div>
-
-    <!-- アクセサリ -->
-    <div id="tab-accessory" class="item-list">
-      <button class="item-btn" type="button" onclick="setPart('layer-accessory', 'accessory1')">アクセ1</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-accessory', 'accessory2')">アクセ2</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-accessory', 'accessory3')">アクセ3</button>
-      <button class="item-btn" type="button" onclick="setPart('layer-accessory', null)">なし</button>
-    </div>
-  </div>
-</div>
-    
   <script>
     function goToMaker() {
+      document.body.classList.add("fullscreen-maker");
       document.getElementById("home-screen").style.display = "none";
       document.getElementById("maker-screen").style.display = "block";
       window.scrollTo(0, 0);
 
-      // ★初回だけジェスチャー初期化
       if (!window.__watasuteGesturesReady) {
         setupAvatarGestures();
         window.__watasuteGesturesReady = true;
@@ -761,6 +751,7 @@ body { margin: 0; }
     function goHome() {
       stopCamera();
       setShootMode(false);
+      document.body.classList.remove("fullscreen-maker");
       document.getElementById("maker-screen").style.display = "none";
       document.getElementById("home-screen").style.display = "block";
       window.scrollTo(0, 0);
@@ -802,12 +793,13 @@ body { margin: 0; }
       });
     }
 
-    // ========== 既存：背景なし保存 ==========
+    // ========== 背景なし保存 ==========
     function downloadImage() {
       try {
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d");
         const bodyImg = document.getElementById("layer-body");
+
         if (!bodyImg || bodyImg.naturalWidth === 0) {
           canvas.width = 1000;
           canvas.height = 1500;
@@ -815,6 +807,7 @@ body { margin: 0; }
           canvas.width = bodyImg.naturalWidth;
           canvas.height = bodyImg.naturalHeight;
         }
+
         const layerIds = [
           "layer-background",
           "layer-hair-back",
@@ -826,6 +819,7 @@ body { margin: 0; }
           "layer-accessory",
           "layer-frame",
         ];
+
         let itemsDrawn = 0;
         layerIds.forEach((id) => {
           const img = document.getElementById(id);
@@ -834,10 +828,12 @@ body { margin: 0; }
             itemsDrawn++;
           }
         });
+
         if (itemsDrawn === 0) {
           alert("画像が表示されていません");
           return;
         }
+
         const link = document.createElement("a");
         link.download = "watasute_avatar.png";
         link.href = canvas.toDataURL("image/png");
@@ -849,112 +845,10 @@ body { margin: 0; }
       }
     }
 
-    // ========== ★追加：撮影モード（カメラ） ==========
+    // ========== 撮影モード（カメラ） ==========
     let cameraStream = null;
     let facingMode = "user"; // "environment" で背面
     let shootMode = false;
-
-    // ===============================
-    // ★キャラ移動・拡大縮小（ドラッグ＆ピンチ）
-    // ===============================
-    const avatarTransform = { x: 0, y: 0, scale: 1 };
-    const pointers = new Map();
-    let gestureStart = null;
-
-    function applyAvatarTransform() {
-      const group = document.getElementById("avatar-group");
-      if (!group) return;
-      group.style.transform = `translate(${avatarTransform.x}px, ${avatarTransform.y}px) scale(${avatarTransform.scale})`;
-    }
-
-    function clampScale(s) {
-      return Math.min(3, Math.max(0.4, s));
-    }
-
-    function setupAvatarGestures() {
-      const group = document.getElementById("avatar-group");
-      if (!group) return;
-
-      group.addEventListener("pointerdown", (e) => {
-        group.setPointerCapture(e.pointerId);
-        pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
-
-        if (pointers.size === 1) {
-          gestureStart = {
-            type: "drag",
-            x0: avatarTransform.x,
-            y0: avatarTransform.y,
-            px: e.clientX,
-            py: e.clientY,
-          };
-        } else if (pointers.size === 2) {
-          const pts = Array.from(pointers.values());
-          const dx = pts[0].x - pts[1].x;
-          const dy = pts[0].y - pts[1].y;
-          const dist = Math.hypot(dx, dy);
-          const mid = { x: (pts[0].x + pts[1].x) / 2, y: (pts[0].y + pts[1].y) / 2 };
-          gestureStart = {
-            type: "pinch",
-            dist,
-            mid,
-            scale0: avatarTransform.scale,
-            x0: avatarTransform.x,
-            y0: avatarTransform.y,
-          };
-        }
-      });
-
-      group.addEventListener("pointermove", (e) => {
-        if (!pointers.has(e.pointerId) || !gestureStart) return;
-        pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
-
-        if (pointers.size === 1 && gestureStart.type === "drag") {
-          const dx = e.clientX - gestureStart.px;
-          const dy = e.clientY - gestureStart.py;
-          avatarTransform.x = gestureStart.x0 + dx;
-          avatarTransform.y = gestureStart.y0 + dy;
-          applyAvatarTransform();
-        }
-
-        if (pointers.size === 2 && gestureStart.type === "pinch") {
-          const pts = Array.from(pointers.values());
-          const dx = pts[0].x - pts[1].x;
-          const dy = pts[0].y - pts[1].y;
-          const dist = Math.hypot(dx, dy);
-          const scale = clampScale(gestureStart.scale0 * (dist / gestureStart.dist));
-
-          const mid = { x: (pts[0].x + pts[1].x) / 2, y: (pts[0].y + pts[1].y) / 2 };
-          const mdx = mid.x - gestureStart.mid.x;
-          const mdy = mid.y - gestureStart.mid.y;
-
-          avatarTransform.scale = scale;
-          avatarTransform.x = gestureStart.x0 + mdx;
-          avatarTransform.y = gestureStart.y0 + mdy;
-          applyAvatarTransform();
-        }
-      });
-
-      function endPointer(e) {
-        pointers.delete(e.pointerId);
-        if (pointers.size === 0) gestureStart = null;
-        if (pointers.size === 1) {
-          const pt = Array.from(pointers.values())[0];
-          gestureStart = {
-            type: "drag",
-            x0: avatarTransform.x,
-            y0: avatarTransform.y,
-            px: pt.x,
-            py: pt.y,
-          };
-        }
-      }
-
-      group.addEventListener("pointerup", endPointer);
-      group.addEventListener("pointercancel", endPointer);
-
-      // 初期反映
-      applyAvatarTransform();
-    }
 
     function setShootMode(on) {
       shootMode = on;
@@ -1001,7 +895,102 @@ body { margin: 0; }
       await startCamera();
     }
 
-   async function captureAndDownload() {
+    // ========== キャラ移動・拡大縮小 ==========
+    const avatarTransform = { x: 0, y: 0, scale: 1 };
+    const pointers = new Map();
+    let gestureStart = null;
+
+    function applyAvatarTransform() {
+      const group = document.getElementById("avatar-group");
+      if (!group) return;
+      group.style.transform = `translate(${avatarTransform.x}px, ${avatarTransform.y}px) scale(${avatarTransform.scale})`;
+    }
+
+    function clampScale(s) {
+      return Math.min(3, Math.max(0.4, s));
+    }
+
+    function setupAvatarGestures() {
+      const group = document.getElementById("avatar-group");
+      if (!group) return;
+
+      group.addEventListener("pointerdown", (e) => {
+        group.setPointerCapture(e.pointerId);
+        pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+        if (pointers.size === 1) {
+          gestureStart = {
+            type: "drag",
+            x0: avatarTransform.x,
+            y0: avatarTransform.y,
+            px: e.clientX,
+            py: e.clientY,
+          };
+        } else if (pointers.size === 2) {
+          const pts = Array.from(pointers.values());
+          const dist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+          const mid = { x: (pts[0].x + pts[1].x) / 2, y: (pts[0].y + pts[1].y) / 2 };
+          gestureStart = {
+            type: "pinch",
+            dist,
+            mid,
+            scale0: avatarTransform.scale,
+            x0: avatarTransform.x,
+            y0: avatarTransform.y,
+          };
+        }
+      });
+
+      group.addEventListener("pointermove", (e) => {
+        if (!pointers.has(e.pointerId) || !gestureStart) return;
+        pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+        if (pointers.size === 1 && gestureStart.type === "drag") {
+          const dx = e.clientX - gestureStart.px;
+          const dy = e.clientY - gestureStart.py;
+          avatarTransform.x = gestureStart.x0 + dx;
+          avatarTransform.y = gestureStart.y0 + dy;
+          applyAvatarTransform();
+        }
+
+        if (pointers.size === 2 && gestureStart.type === "pinch") {
+          const pts = Array.from(pointers.values());
+          const dist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+          const scale = clampScale(gestureStart.scale0 * (dist / gestureStart.dist));
+
+          const mid = { x: (pts[0].x + pts[1].x) / 2, y: (pts[0].y + pts[1].y) / 2 };
+          const mdx = mid.x - gestureStart.mid.x;
+          const mdy = mid.y - gestureStart.mid.y;
+
+          avatarTransform.scale = scale;
+          avatarTransform.x = gestureStart.x0 + mdx;
+          avatarTransform.y = gestureStart.y0 + mdy;
+          applyAvatarTransform();
+        }
+      });
+
+      function endPointer(e) {
+        pointers.delete(e.pointerId);
+        if (pointers.size === 0) gestureStart = null;
+        if (pointers.size === 1) {
+          const pt = Array.from(pointers.values())[0];
+          gestureStart = {
+            type: "drag",
+            x0: avatarTransform.x,
+            y0: avatarTransform.y,
+            px: pt.x,
+            py: pt.y,
+          };
+        }
+      }
+
+      group.addEventListener("pointerup", endPointer);
+      group.addEventListener("pointercancel", endPointer);
+      applyAvatarTransform();
+    }
+
+    // ========== 撮影して「写真に保存」しやすくする（共有優先） ==========
+    async function captureAndShare() {
       try {
         const stage = document.getElementById("avatar-display");
         const video = document.getElementById("camera");
@@ -1018,6 +1007,7 @@ body { margin: 0; }
         const dpr = window.devicePixelRatio || 1;
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d");
+
         canvas.width = Math.round(stageW * dpr);
         canvas.height = Math.round(stageH * dpr);
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // CSS px基準
@@ -1059,31 +1049,29 @@ body { margin: 0; }
           return;
         }
 
-      // ③ 共有（写真に保存しやすくする）
-const blob = await new Promise((res) =>
-  canvas.toBlob(res, "image/png")
-);
+        // ③ 共有（iPhoneだと「写真に保存」が出る）
+        const blob = await new Promise((res) => canvas.toBlob(res, "image/png"));
+        const file = new File([blob], "watasute_shot.png", { type: "image/png" });
 
-const file = new File([blob], "watasute_shot.png", {
-  type: "image/png",
-});
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({
+            files: [file],
+            title: "わたすて",
+            text: "わたすてで撮影したよ！",
+          });
+          return;
+        }
 
-if (navigator.canShare && navigator.canShare({ files: [file] })) {
-  await navigator.share({
-    files: [file],
-    title: "わたすて",
-    text: "わたすてで撮影したよ！",
-  });
-  return;
-}
-
-// 共有できない端末は従来DL
-const link = document.createElement("a");
-link.download = "watasute_shot.png";
-link.href = canvas.toDataURL("image/png");
-document.body.appendChild(link);
-link.click();
-document.body.removeChild(link);
+        // 共有できない端末は従来DL
+        const link = document.createElement("a");
+        link.download = "watasute_shot.png";
+        link.href = canvas.toDataURL("image/png");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      } catch (e) {
+        alert("エラーが発生しました: " + e.message);
+      }
     }
 
     function drawVideoCover(ctx, video, dstW, dstH) {
