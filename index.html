@@ -1153,21 +1153,19 @@
         ctx.drawImage(video, 0, 0, vw, vh);
 
         // ② キャラ画像の描画
-        // キャラ画像は正方形想定。canvas上でcontainしたときの実描画領域を計算する
-        const shortSide = Math.min(vw, vh);  // containの基準辺
-        // containした場合のキャラ描画サイズ（正方形）
-        const charSize = shortSide;
-        // canvasの中心に配置したときのオフセット
-        const charX = (vw - charSize) / 2;
-        const charY = (vh - charSize) / 2;
-
-        // CSS上のステージサイズ（ドラッグ量の基準）
+        // 「CSSで見えている通り」をそのままcanvasに再現する
+        // → canvasをCSSのステージサイズと同じ座標系にスケール変換して描く
         const rect = stage.getBoundingClientRect();
         const cssW = Math.max(1, rect.width);
         const cssH = Math.max(1, rect.height);
-        // CSS px → canvas px への変換比
-        const toCanvasX = vw / cssW;
-        const toCanvasY = vh / cssH;
+
+        ctx.save();
+        // CSS座標系 → canvas座標系への変換を設定
+        ctx.scale(vw / cssW, vh / cssH);
+        // あとはCSS px単位でそのまま操作すればCSSと同じ見た目になる
+        ctx.translate(cssW / 2 + avatarTransform.x, cssH / 2 + avatarTransform.y);
+        ctx.scale(avatarTransform.scale, avatarTransform.scale);
+        ctx.translate(-cssW / 2, -cssH / 2);
 
         const layerIds = [
           "layer-background", "layer-hair-back", "layer-body",
@@ -1179,18 +1177,12 @@
         layerIds.forEach((id) => {
           const img = document.getElementById(id);
           if (!img || img.style.display === "none" || !img.src || img.naturalWidth === 0) return;
-
-          ctx.save();
-          // キャラの中心点（canvas座標）を基準にtranslate
-          const cx = vw / 2 + avatarTransform.x * toCanvasX;
-          const cy = vh / 2 + avatarTransform.y * toCanvasY;
-          ctx.translate(cx, cy);
-          ctx.scale(avatarTransform.scale, avatarTransform.scale);
-          // containサイズで、中心を原点に描画
-          ctx.drawImage(img, -charSize / 2, -charSize / 2, charSize, charSize);
-          ctx.restore();
+          // CSS上と同じ座標系なのでそのままcssW×cssHサイズで描けばOK
+          ctx.drawImage(img, 0, 0, cssW, cssH);
           itemsDrawn++;
         });
+
+        ctx.restore();
 
         if (itemsDrawn === 0) { alert("画像が表示されていません"); return; }
 
