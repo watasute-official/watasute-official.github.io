@@ -1149,20 +1149,30 @@
         canvas.width  = vw;
         canvas.height = vh;
 
-        // ① カメラ映像をcanvas全面に描画
-        ctx.drawImage(video, 0, 0, vw, vh);
+        // ① カメラ映像をcanvas全面にcover描画
+        drawVideoCover(ctx, video, vw, vh);
 
         // ② キャラ画像の描画
-        // 「CSSで見えている通り」をそのままcanvasに再現する
-        // → canvasをCSSのステージサイズと同じ座標系にスケール変換して描く
+        // 均一スケール(scaleU)でCSS→canvas変換する。縦横比を壊さないことが最重要。
+        // scaleXとscaleYが異なるとキャラが潰れるので、小さい方に合わせる。
         const rect = stage.getBoundingClientRect();
         const cssW = Math.max(1, rect.width);
         const cssH = Math.max(1, rect.height);
+        // 均一スケール: vwとvhのどちらに合わせるかを、CSSアスペクト比で決める
+        const scaleU = Math.min(vw / cssW, vh / cssH);
+
+        // canvas上でのキャラ描画領域（CSS座標系をscaleUで拡大したもの）
+        const drawW = cssW * scaleU;
+        const drawH = cssH * scaleU;
+        // canvas中央に配置するためのオフセット
+        const offsetX = (vw - drawW) / 2;
+        const offsetY = (vh - drawH) / 2;
 
         ctx.save();
-        // CSS座標系 → canvas座標系への変換を設定
-        ctx.scale(vw / cssW, vh / cssH);
-        // あとはCSS px単位でそのまま操作すればCSSと同じ見た目になる
+        // 均一スケール + 中央配置
+        ctx.translate(offsetX, offsetY);
+        ctx.scale(scaleU, scaleU);
+        // ユーザーのドラッグ・ピンチ操作を反映（CSS px単位のまま）
         ctx.translate(cssW / 2 + avatarTransform.x, cssH / 2 + avatarTransform.y);
         ctx.scale(avatarTransform.scale, avatarTransform.scale);
         ctx.translate(-cssW / 2, -cssH / 2);
@@ -1177,7 +1187,7 @@
         layerIds.forEach((id) => {
           const img = document.getElementById(id);
           if (!img || img.style.display === "none" || !img.src || img.naturalWidth === 0) return;
-          // CSS上と同じ座標系なのでそのままcssW×cssHサイズで描けばOK
+          // CSS座標系でcssW×cssHに描く（均一スケール済みなので縦横比が保たれる）
           ctx.drawImage(img, 0, 0, cssW, cssH);
           itemsDrawn++;
         });
