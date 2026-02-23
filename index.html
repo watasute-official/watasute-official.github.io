@@ -528,18 +528,20 @@
       padding: 8px 16px;
     }
 
-    /* FIX 3: 全画面撮影時はアクションボタンのみ表示、アイテム欄は完全非表示 */
+    /* 全画面撮影時：ボタン群は画面下部に固定（アイテムパネルの上） */
     body.shoot-fullscreen .maker-actions {
       position: fixed;
       left: 0;
       right: 0;
-      bottom: 16px;
+      bottom: 220px; /* アイテムパネル分上に逃がす */
       z-index: 400;
       margin: 0;
-      padding: 10px 12px;
-      background: rgba(255, 255, 255, 0.88);
+      padding: 6px 10px;
+      background: rgba(255, 255, 255, 0.82);
       backdrop-filter: blur(6px);
-      border-radius: 18px 18px 0 0;
+      border-radius: 14px 14px 0 0;
+      flex-wrap: wrap;
+      gap: 6px;
     }
 
     /* 全画面時はゴミ箱ボタンを右上に */
@@ -550,10 +552,34 @@
       z-index: 300;
     }
 
-    /* FIX 3: 撮影モード中はアイテムパネルトグルバーとパネル自体を完全に隠す */
-    body.shoot-fullscreen #panel-toggle-bar,
+    /* 撮影モード中：トグルバーを画面下部に固定 （bottomはJSで動的更新） */
+    body.shoot-fullscreen #panel-toggle-bar {
+      position: fixed;
+      left: 0;
+      right: 0;
+      z-index: 410;
+      border-radius: 14px 14px 0 0;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(4px);
+    }
+
+    /* 撮影モード中：アイテムパネルを画面最下部に固定 */
     body.shoot-fullscreen #controls {
-      display: none !important;
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 405;
+      border-radius: 0;
+      overflow-y: auto;
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(4px);
+      /* max-heightはJSで直接制御するためCSSでは指定しない */
+    }
+
+    /* 撮影中はアイテムリストの高さをさらに制限 */
+    body.shoot-fullscreen .item-list {
+      max-height: 120px;
     }
   </style>
 </head>
@@ -808,15 +834,52 @@
   </div>
 
   <script>
-    /* ========== FIX 2: アイテムパネル開閉 ========== */
-    let controlsOpen = true; // 初期状態は開いている
+    /* ========== アイテムパネル開閉 ========== */
+    let controlsOpen = true;
+
+    const PANEL_HEIGHT_SHOOT = 180;
+    const TOGGLE_BAR_H = 36;
 
     function toggleControls() {
       controlsOpen = !controlsOpen;
       const panel = document.getElementById("controls");
+      const toggleBar = document.getElementById("panel-toggle-bar");
+      const actions = document.querySelector(".maker-actions");
       const label = document.getElementById("panel-toggle-label");
+
       panel.classList.toggle("panel-closed", !controlsOpen);
       label.textContent = controlsOpen ? "🧩 アイテムを選ぶ ▲" : "🧩 アイテムを選ぶ ▼";
+
+      // 撮影モード中はinlineスタイルで直接制御（CSS詳細度問題を回避）
+      if (document.body.classList.contains("shoot-fullscreen")) {
+        applyShootPanelLayout();
+      }
+    }
+
+    function applyShootPanelLayout() {
+      const panel = document.getElementById("controls");
+      const toggleBar = document.getElementById("panel-toggle-bar");
+      const actions = document.querySelector(".maker-actions");
+      if (!panel || !toggleBar || !actions) return;
+
+      if (document.body.classList.contains("shoot-fullscreen")) {
+        if (controlsOpen) {
+          panel.style.maxHeight = PANEL_HEIGHT_SHOOT + "px";
+          panel.style.padding = "";
+          toggleBar.style.bottom = PANEL_HEIGHT_SHOOT + "px";
+          actions.style.bottom = (PANEL_HEIGHT_SHOOT + TOGGLE_BAR_H) + "px";
+        } else {
+          panel.style.maxHeight = "0";
+          panel.style.padding = "0 12px";
+          toggleBar.style.bottom = "0px";
+          actions.style.bottom = TOGGLE_BAR_H + "px";
+        }
+      } else {
+        panel.style.maxHeight = "";
+        panel.style.padding = "";
+        toggleBar.style.bottom = "";
+        actions.style.bottom = "";
+      }
     }
 
     /* ========== 画面遷移 ========== */
@@ -932,6 +995,9 @@
       // ボタンラベル更新
       const btn = document.getElementById("btn-shoot-toggle");
       if (btn) btn.textContent = shootMode ? "📷 通常モードに戻る" : "📷 撮影モード";
+
+      // 撮影モード切替時にパネル位置をリセット
+      applyShootPanelLayout();
     }
 
     function toggleShootMode() {
@@ -1073,15 +1139,15 @@
         }
 
         const rect = stage.getBoundingClientRect();
+        // iPhone伸び防止: canvasサイズをCSS pxに統一し、DPRによる二重スケールを排除
         const stageW = Math.max(1, Math.round(rect.width));
         const stageH = Math.max(1, Math.round(rect.height));
-        const dpr = window.devicePixelRatio || 1;
 
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d");
-        canvas.width = Math.round(stageW * dpr);
-        canvas.height = Math.round(stageH * dpr);
-        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        // canvas解像度 = CSS px（setTransformなし）で描画の伸びをなくす
+        canvas.width = stageW;
+        canvas.height = stageH;
 
         drawVideoCover(ctx, video, stageW, stageH);
 
