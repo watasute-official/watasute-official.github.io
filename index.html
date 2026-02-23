@@ -291,17 +291,18 @@
       background-position: 0 0, 10px 10px;
     }
 
-    /* ★追加：カメラ映像 */
-    #camera {
+    $1
+    /* ★追加：キャラ全体を動かす（ドラッグ/ピンチ） */
+    #avatar-group {
       position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      z-index: 1;
-      display: none; /* 撮影モードOFFは非表示 */
+      inset: 0;
+      z-index: 10;
+      transform: translate(0px, 0px) scale(1);
+      transform-origin: 50% 50%;
+      touch-action: none; /* ピンチ/ドラッグをJSで扱う */
+      cursor: grab;
     }
+    #avatar-group:active { cursor: grabbing; }
 
     .avatar-layer {
       position: absolute;
@@ -546,18 +547,21 @@
       <div class="maker-main-top">
         <div class="avatar-wrapper">
           <div id="avatar-display">
-            <!-- ★追加：カメラ映像（撮影モードで表示） -->
+            <!-- ★カメラ映像（撮影モードで表示） -->
             <video id="camera" autoplay playsinline muted></video>
 
-            <img id="layer-background" class="avatar-layer" src="" alt="" />
-            <img id="layer-hair-back" class="avatar-layer" src="assets/hair1_back.png" alt="" />
-            <img id="layer-body" class="avatar-layer" src="assets/body.png" alt="素体" />
-            <img id="layer-eyes" class="avatar-layer" src="assets/eyes1.png" alt="" />
-            <img id="layer-mouth" class="avatar-layer" src="assets/mouth1.png" alt="" />
-            <img id="layer-outfit" class="avatar-layer" src="assets/outfit1.png" alt="" />
-            <img id="layer-hair-front" class="avatar-layer" src="assets/hair1_front.png" alt="" />
-            <img id="layer-accessory" class="avatar-layer" src="" alt="" />
-            <img id="layer-frame" class="avatar-layer" src="" alt="" />
+            <!-- ★キャラをまとめて動かす箱（ドラッグ/ピンチ対象） -->
+            <div id="avatar-group">
+              <img id="layer-background" class="avatar-layer" src="" alt="" />
+              <img id="layer-hair-back" class="avatar-layer" src="assets/hair1_back.png" alt="" />
+              <img id="layer-body" class="avatar-layer" src="assets/body.png" alt="素体" />
+              <img id="layer-eyes" class="avatar-layer" src="assets/eyes1.png" alt="" />
+              <img id="layer-mouth" class="avatar-layer" src="assets/mouth1.png" alt="" />
+              <img id="layer-outfit" class="avatar-layer" src="assets/outfit1.png" alt="" />
+              <img id="layer-hair-front" class="avatar-layer" src="assets/hair1_front.png" alt="" />
+              <img id="layer-accessory" class="avatar-layer" src="" alt="" />
+              <img id="layer-frame" class="avatar-layer" src="" alt="" />
+            </div>
           </div>
         </div>
 
@@ -685,6 +689,12 @@
       document.getElementById("home-screen").style.display = "none";
       document.getElementById("maker-screen").style.display = "block";
       window.scrollTo(0, 0);
+
+      // ★初回だけジェスチャー初期化
+      if (!window.__watasuteGesturesReady) {
+        setupAvatarGestures();
+        window.__watasuteGesturesReady = true;
+      }
     }
 
     function goHome() {
@@ -783,6 +793,108 @@
     let facingMode = "user"; // "environment" で背面
     let shootMode = false;
 
+    // ===============================
+    // ★キャラ移動・拡大縮小（ドラッグ＆ピンチ）
+    // ===============================
+    const avatarTransform = { x: 0, y: 0, scale: 1 };
+    const pointers = new Map();
+    let gestureStart = null;
+
+    function applyAvatarTransform() {
+      const group = document.getElementById("avatar-group");
+      if (!group) return;
+      group.style.transform = `translate(${avatarTransform.x}px, ${avatarTransform.y}px) scale(${avatarTransform.scale})`;
+    }
+
+    function clampScale(s) {
+      return Math.min(3, Math.max(0.4, s));
+    }
+
+    function setupAvatarGestures() {
+      const group = document.getElementById("avatar-group");
+      if (!group) return;
+
+      group.addEventListener("pointerdown", (e) => {
+        group.setPointerCapture(e.pointerId);
+        pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+        if (pointers.size === 1) {
+          gestureStart = {
+            type: "drag",
+            x0: avatarTransform.x,
+            y0: avatarTransform.y,
+            px: e.clientX,
+            py: e.clientY,
+          };
+        } else if (pointers.size === 2) {
+          const pts = Array.from(pointers.values());
+          const dx = pts[0].x - pts[1].x;
+          const dy = pts[0].y - pts[1].y;
+          const dist = Math.hypot(dx, dy);
+          const mid = { x: (pts[0].x + pts[1].x) / 2, y: (pts[0].y + pts[1].y) / 2 };
+          gestureStart = {
+            type: "pinch",
+            dist,
+            mid,
+            scale0: avatarTransform.scale,
+            x0: avatarTransform.x,
+            y0: avatarTransform.y,
+          };
+        }
+      });
+
+      group.addEventListener("pointermove", (e) => {
+        if (!pointers.has(e.pointerId) || !gestureStart) return;
+        pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+        if (pointers.size === 1 && gestureStart.type === "drag") {
+          const dx = e.clientX - gestureStart.px;
+          const dy = e.clientY - gestureStart.py;
+          avatarTransform.x = gestureStart.x0 + dx;
+          avatarTransform.y = gestureStart.y0 + dy;
+          applyAvatarTransform();
+        }
+
+        if (pointers.size === 2 && gestureStart.type === "pinch") {
+          const pts = Array.from(pointers.values());
+          const dx = pts[0].x - pts[1].x;
+          const dy = pts[0].y - pts[1].y;
+          const dist = Math.hypot(dx, dy);
+          const scale = clampScale(gestureStart.scale0 * (dist / gestureStart.dist));
+
+          const mid = { x: (pts[0].x + pts[1].x) / 2, y: (pts[0].y + pts[1].y) / 2 };
+          const mdx = mid.x - gestureStart.mid.x;
+          const mdy = mid.y - gestureStart.mid.y;
+
+          avatarTransform.scale = scale;
+          avatarTransform.x = gestureStart.x0 + mdx;
+          avatarTransform.y = gestureStart.y0 + mdy;
+          applyAvatarTransform();
+        }
+      });
+
+      function endPointer(e) {
+        pointers.delete(e.pointerId);
+        if (pointers.size === 0) gestureStart = null;
+        if (pointers.size === 1) {
+          const pt = Array.from(pointers.values())[0];
+          gestureStart = {
+            type: "drag",
+            x0: avatarTransform.x,
+            y0: avatarTransform.y,
+            px: pt.x,
+            py: pt.y,
+          };
+        }
+      }
+
+      group.addEventListener("pointerup", endPointer);
+      group.addEventListener("pointercancel", endPointer);
+
+      // 初期反映
+      applyAvatarTransform();
+    }
+
     function setShootMode(on) {
       shootMode = on;
       const video = document.getElementById("camera");
@@ -830,28 +942,34 @@
 
     function captureAndDownload() {
       try {
+        const stage = document.getElementById("avatar-display");
         const video = document.getElementById("camera");
+
         if (!video || !video.srcObject) {
           alert("先に「カメラON」を押してください");
           return;
         }
 
+        const rect = stage.getBoundingClientRect();
+        const stageW = Math.max(1, Math.round(rect.width));
+        const stageH = Math.max(1, Math.round(rect.height));
+
+        const dpr = window.devicePixelRatio || 1;
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d");
+        canvas.width = Math.round(stageW * dpr);
+        canvas.height = Math.round(stageH * dpr);
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0); // CSS px基準
 
-        const bodyImg = document.getElementById("layer-body");
-        if (!bodyImg || bodyImg.naturalWidth === 0) {
-          canvas.width = 1000;
-          canvas.height = 1500;
-        } else {
-          canvas.width = bodyImg.naturalWidth;
-          canvas.height = bodyImg.naturalHeight;
-        }
+        // ① 背景：videoフレーム（cover）
+        drawVideoCover(ctx, video, stageW, stageH);
 
-        // ① 背景：videoフレーム
-        drawVideoCover(ctx, video, canvas.width, canvas.height);
+        // ② キャラの移動・拡大を反映してレイヤー描画
+        ctx.save();
+        ctx.translate(stageW / 2 + avatarTransform.x, stageH / 2 + avatarTransform.y);
+        ctx.scale(avatarTransform.scale, avatarTransform.scale);
+        ctx.translate(-stageW / 2, -stageH / 2);
 
-        // ② レイヤー
         const layerIds = [
           "layer-background",
           "layer-hair-back",
@@ -868,10 +986,12 @@
         layerIds.forEach((id) => {
           const img = document.getElementById(id);
           if (img && img.style.display !== "none" && img.src && img.naturalWidth > 0) {
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0, stageW, stageH);
             itemsDrawn++;
           }
         });
+
+        ctx.restore();
 
         if (itemsDrawn === 0) {
           alert("画像が表示されていません");
