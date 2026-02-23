@@ -1138,23 +1138,36 @@
           return;
         }
 
-        const rect = stage.getBoundingClientRect();
-        // iPhone伸び防止: canvasサイズをCSS pxに統一し、DPRによる二重スケールを排除
-        const stageW = Math.max(1, Math.round(rect.width));
-        const stageH = Math.max(1, Math.round(rect.height));
+        // Canvasサイズ = カメラの実ピクセルサイズをそのまま使う
+        // → CSS表示サイズ(getBoundingClientRect)は縦長になるが
+        //   カメラ映像自体は横長(例:1920x1080)なので、それを基準にすれば伸びない
+        const vw = video.videoWidth  || 1280;
+        const vh = video.videoHeight || 720;
 
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d");
-        // canvas解像度 = CSS px（setTransformなし）で描画の伸びをなくす
-        canvas.width = stageW;
-        canvas.height = stageH;
+        canvas.width  = vw;
+        canvas.height = vh;
 
-        drawVideoCover(ctx, video, stageW, stageH);
+        // ① カメラ映像をそのまま全面に描画（cover不要、サイズが一致しているので）
+        ctx.drawImage(video, 0, 0, vw, vh);
 
+        // ② キャラをcanvas中央にcontain描画（ユーザーが動かした分のオフセット・スケールも反映）
         ctx.save();
-        ctx.translate(stageW / 2 + avatarTransform.x, stageH / 2 + avatarTransform.y);
+        // CSS上のステージサイズ（キャラ位置計算の基準）
+        const rect  = stage.getBoundingClientRect();
+        const cssW  = Math.max(1, rect.width);
+        const cssH  = Math.max(1, rect.height);
+        // CSS→canvas座標への変換スケール
+        const scaleX = vw / cssW;
+        const scaleY = vh / cssH;
+        // avatarTransformはCSS px単位なので変換して適用
+        ctx.translate(
+          vw / 2 + avatarTransform.x * scaleX,
+          vh / 2 + avatarTransform.y * scaleY
+        );
         ctx.scale(avatarTransform.scale, avatarTransform.scale);
-        ctx.translate(-stageW / 2, -stageH / 2);
+        ctx.translate(-vw / 2, -vh / 2);
 
         const layerIds = [
           "layer-background", "layer-hair-back", "layer-body",
@@ -1166,8 +1179,8 @@
         layerIds.forEach((id) => {
           const img = document.getElementById(id);
           if (img && img.style.display !== "none" && img.src && img.naturalWidth > 0) {
-            // object-fit: contain と同じ計算でアスペクト比を保って中央描画
-            drawImageContain(ctx, img, stageW, stageH);
+            // キャラ画像をcanvasサイズにcontainで中央描画
+            drawImageContain(ctx, img, vw, vh);
             itemsDrawn++;
           }
         });
