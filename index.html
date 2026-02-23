@@ -440,19 +440,19 @@
     .item-btn:active { border-color: #ff8fab; background-color: #fff0f5; }
 
     /* ===== フル画面撮影レイアウト（makerだけ） ===== */
-    body.fullscreen-maker { justify-content: flex-start; } /* 画面上から使う */
+    body.shoot-fullscreen { justify-content: flex-start; } /* 画面上から使う */
 
-    body.fullscreen-maker .app {
+    body.shoot-fullscreen .app {
       max-width: 100%;
       box-shadow: none;
     }
 
-    body.fullscreen-maker #maker-screen{
+    body.shoot-fullscreen #maker-screen{
       padding: 0;
       min-height: 100vh;
     }
 
-    body.fullscreen-maker #avatar-display{
+    body.shoot-fullscreen #avatar-display{
       width: 100%;
       height: 100vh;
       min-height: 100vh;
@@ -460,7 +460,7 @@
       box-shadow: none;
     }
 
-    body.fullscreen-maker .maker-header{
+    body.shoot-fullscreen .maker-header{
       position: fixed;
       top: 0;
       left: 0;
@@ -470,7 +470,7 @@
       backdrop-filter: blur(6px);
     }
 
-    body.fullscreen-maker #controls{
+    body.shoot-fullscreen #controls{
       position: fixed;
       left: 0;
       right: 0;
@@ -480,7 +480,7 @@
       border-radius: 18px 18px 0 0;
     }
 
-    body.fullscreen-maker .maker-actions{
+    body.shoot-fullscreen .maker-actions{
       position: fixed;
       left: 0;
       right: 0;
@@ -737,25 +737,24 @@
 
   <script>
     function goToMaker() {
-      document.body.classList.add("fullscreen-maker");
-      document.getElementById("home-screen").style.display = "none";
-      document.getElementById("maker-screen").style.display = "block";
-      window.scrollTo(0, 0);
+  document.getElementById("home-screen").style.display = "none";
+  document.getElementById("maker-screen").style.display = "block";
+  window.scrollTo(0, 0);
 
-      if (!window.__watasuteGesturesReady) {
-        setupAvatarGestures();
-        window.__watasuteGesturesReady = true;
-      }
-    }
+  if (!window.__watasuteGesturesReady) {
+    setupAvatarGestures();
+    window.__watasuteGesturesReady = true;
+  }
+}
 
     function goHome() {
-      stopCamera();
-      setShootMode(false);
-      document.body.classList.remove("fullscreen-maker");
-      document.getElementById("maker-screen").style.display = "none";
-      document.getElementById("home-screen").style.display = "block";
-      window.scrollTo(0, 0);
-    }
+  stopCamera();
+  setShootMode(false);
+  document.body.classList.remove("shoot-fullscreen"); // 念押し
+  document.getElementById("maker-screen").style.display = "none";
+  document.getElementById("home-screen").style.display = "block";
+  window.scrollTo(0, 0);
+}
 
     function toggleMenu() {
       const btn = document.querySelector(".hamburger-menu");
@@ -851,15 +850,13 @@
     let shootMode = false;
 
     function setShootMode(on) {
-      shootMode = on;
-      const video = document.getElementById("camera");
-      if (!video) return;
-      video.style.display = shootMode ? "block" : "none";
-    }
+  shootMode = on;
+  const video = document.getElementById("camera");
+  if (!video) return;
 
-    function toggleShootMode() {
-      setShootMode(!shootMode);
-    }
+  video.style.display = shootMode ? "block" : "none";
+  document.body.classList.toggle("shoot-fullscreen", shootMode);
+}
 
     async function startCamera() {
       try {
