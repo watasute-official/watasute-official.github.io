@@ -1166,7 +1166,8 @@
         layerIds.forEach((id) => {
           const img = document.getElementById(id);
           if (img && img.style.display !== "none" && img.src && img.naturalWidth > 0) {
-            ctx.drawImage(img, 0, 0, stageW, stageH);
+            // object-fit: contain と同じ計算でアスペクト比を保って中央描画
+            drawImageContain(ctx, img, stageW, stageH);
             itemsDrawn++;
           }
         });
@@ -1192,6 +1193,19 @@
       } catch (e) {
         alert("エラーが発生しました: " + e.message);
       }
+    }
+
+    // object-fit: contain と同じ計算でキャラ画像を中央に描画（縦伸び防止）
+    function drawImageContain(ctx, img, dstW, dstH) {
+      const iw = img.naturalWidth;
+      const ih = img.naturalHeight;
+      if (!iw || !ih) return;
+      const scale = Math.min(dstW / iw, dstH / ih);
+      const drawW = iw * scale;
+      const drawH = ih * scale;
+      const dx = (dstW - drawW) / 2;
+      const dy = (dstH - drawH) / 2;
+      ctx.drawImage(img, dx, dy, drawW, drawH);
     }
 
     function drawVideoCover(ctx, video, dstW, dstH) {
