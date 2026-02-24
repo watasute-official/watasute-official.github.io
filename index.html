@@ -581,6 +581,32 @@
     body.shoot-fullscreen .item-list {
       max-height: 120px;
     }
+
+    /* UI全非表示モード */
+    body.ui-hidden .maker-header,
+    body.ui-hidden .maker-actions,
+    body.ui-hidden #panel-toggle-bar,
+    body.ui-hidden #controls,
+    body.ui-hidden .btn-trash {
+      display: none !important;
+    }
+    /* UI非表示中だけ復帰ボタンを右下に固定表示 */
+    #btn-show-ui {
+      display: none;
+      position: fixed;
+      bottom: 16px;
+      right: 16px;
+      z-index: 9999;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255,255,255,0.85);
+      font-size: 1.4rem;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+    }
+    body.ui-hidden #btn-show-ui { display: block; }
   </style>
 </head>
 <body>
@@ -720,7 +746,11 @@
         <button class="btn-big btn-share-main" type="button" onclick="startCamera()">カメラON</button>
         <button class="btn-big btn-share-main" type="button" onclick="switchCamera()">🔄 切替</button>
         <button class="btn-big btn-save-main" type="button" onclick="captureAndShare()">📸 撮影して保存</button>
+        <button class="btn-big btn-share-main" type="button" id="btn-hide-ui" onclick="toggleHideUI()" style="display:none">👁 UI非表示</button>
       </div>
+
+      <!-- UI全非表示モード中の復帰ボタン（常にDOM上に存在） -->
+      <button id="btn-show-ui" type="button" onclick="toggleHideUI()" aria-label="UIを表示">👁</button>
 
       <!-- FIX 2: アイテムパネル開閉トグルバー -->
       <button id="panel-toggle-bar" type="button" onclick="toggleControls()" aria-label="アイテムパネルを開閉">
@@ -834,6 +864,14 @@
   </div>
 
   <script>
+    /* ========== UI全非表示トグル ========== */
+    let uiHidden = false;
+
+    function toggleHideUI() {
+      uiHidden = !uiHidden;
+      document.body.classList.toggle("ui-hidden", uiHidden);
+    }
+
     /* ========== アイテムパネル開閉 ========== */
     let controlsOpen = true;
 
@@ -995,6 +1033,11 @@
       // ボタンラベル更新
       const btn = document.getElementById("btn-shoot-toggle");
       if (btn) btn.textContent = shootMode ? "📷 通常モードに戻る" : "📷 撮影モード";
+      // UI非表示ボタンは撮影モード中だけ表示
+      const hideBtn = document.getElementById("btn-hide-ui");
+      if (hideBtn) hideBtn.style.display = shootMode ? "" : "none";
+      // 撮影モード解除時はUIも復帰
+      if (!shootMode && uiHidden) { uiHidden = false; document.body.classList.remove("ui-hidden"); }
 
       // 撮影モード切替時にパネル位置をリセット
       applyShootPanelLayout();
@@ -1138,45 +1181,26 @@
           return;
         }
 
-        // Canvasサイズ = カメラの実ピクセルサイズをそのまま使う
-        // → CSS表示サイズ(getBoundingClientRect)は縦長になるが
-        //   カメラ映像自体は横長(例:1920x1080)なので、それを基準にすれば伸びない
-        const vw = video.videoWidth  || 1280;
-        const vh = video.videoHeight || 720;
-
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d");
-        canvas.width  = vw;
-        canvas.height = vh;
 
-        // ① カメラ映像をcanvas全面にcover描画
-        drawVideoCover(ctx, video, vw, vh);
+        // ========== 「見たまま撮影」方式 ==========
+        // 各要素の getBoundingClientRect() で画面上の実際の位置・サイズを取得し
+        // そのままcanvasに描く。計算ゼロ、見た目と完全一致。
 
-        // ② キャラ画像の描画
-        // 均一スケール(scaleU)でCSS→canvas変換する。縦横比を壊さないことが最重要。
-        // scaleXとscaleYが異なるとキャラが潰れるので、小さい方に合わせる。
-        const rect = stage.getBoundingClientRect();
-        const cssW = Math.max(1, rect.width);
-        const cssH = Math.max(1, rect.height);
-        // 均一スケール: vwとvhのどちらに合わせるかを、CSSアスペクト比で決める
-        const scaleU = Math.min(vw / cssW, vh / cssH);
+        const stageRect = stage.getBoundingClientRect();
 
-        // canvas上でのキャラ描画領域（CSS座標系をscaleUで拡大したもの）
-        const drawW = cssW * scaleU;
-        const drawH = cssH * scaleU;
-        // canvas中央に配置するためのオフセット
-        const offsetX = (vw - drawW) / 2;
-        const offsetY = (vh - drawH) / 2;
+        // canvas = stageと同じCSS pxサイズで作る（DPRなし）
+        // ※ vw/vhは使わずstageRectを使う
+        canvas.width  = Math.round(stageRect.width);
+        canvas.height = Math.round(stageRect.height);
+        const cw = canvas.width;
+        const ch = canvas.height;
 
-        ctx.save();
-        // 均一スケール + 中央配置
-        ctx.translate(offsetX, offsetY);
-        ctx.scale(scaleU, scaleU);
-        // ユーザーのドラッグ・ピンチ操作を反映（CSS px単位のまま）
-        ctx.translate(cssW / 2 + avatarTransform.x, cssH / 2 + avatarTransform.y);
-        ctx.scale(avatarTransform.scale, avatarTransform.scale);
-        ctx.translate(-cssW / 2, -cssH / 2);
+        // ① カメラ映像をstageと同じ比率でcover描画
+        drawVideoCover(ctx, video, cw, ch);
 
+        // ② 各レイヤー画像を「画面上で見えている位置・サイズ」そのままで描く
         const layerIds = [
           "layer-background", "layer-hair-back", "layer-body",
           "layer-eyes", "layer-mouth", "layer-outfit",
@@ -1187,12 +1211,18 @@
         layerIds.forEach((id) => {
           const img = document.getElementById(id);
           if (!img || img.style.display === "none" || !img.src || img.naturalWidth === 0) return;
-          // CSS座標系でcssW×cssHに描く（均一スケール済みなので縦横比が保たれる）
-          ctx.drawImage(img, 0, 0, cssW, cssH);
+
+          // 画面上でのこの画像の実際の位置・サイズ
+          const r = img.getBoundingClientRect();
+          // stage基準の相対座標に変換
+          const dx = r.left - stageRect.left;
+          const dy = r.top  - stageRect.top;
+          const dw = r.width;
+          const dh = r.height;
+
+          ctx.drawImage(img, dx, dy, dw, dh);
           itemsDrawn++;
         });
-
-        ctx.restore();
 
         if (itemsDrawn === 0) { alert("画像が表示されていません"); return; }
 
