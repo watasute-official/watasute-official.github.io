@@ -590,12 +590,12 @@
     body.ui-hidden .btn-trash {
       display: none !important;
     }
-    /* UI非表示中だけ復帰ボタンを右下に固定表示 */
+    /* UI非表示中だけ復帰ボタンを左下に固定表示 */
     #btn-show-ui {
       display: none;
       position: fixed;
-      bottom: 16px;
-      right: 16px;
+      bottom: 20px;
+      left: 16px;
       z-index: 9999;
       width: 48px;
       height: 48px;
@@ -607,6 +607,25 @@
       box-shadow: 0 2px 8px rgba(0,0,0,0.25);
     }
     body.ui-hidden #btn-show-ui { display: block; }
+
+    /* 撮影ボタン：ui-hidden時も右下に常時固定表示 */
+    #btn-capture-fixed {
+      display: none;
+      position: fixed;
+      bottom: 20px;
+      right: 16px;
+      z-index: 9999;
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      border: none;
+      background: #ff9fb8;
+      color: #fff;
+      font-size: 1.6rem;
+      cursor: pointer;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+    }
+    body.shoot-fullscreen #btn-capture-fixed { display: block; }
   </style>
 </head>
 <body>
@@ -748,6 +767,8 @@
         <button class="btn-big btn-save-main" type="button" onclick="captureAndShare()">📸 撮影して保存</button>
         <button class="btn-big btn-share-main" type="button" id="btn-hide-ui" onclick="toggleHideUI()" style="display:none">👁 UI非表示</button>
       </div>
+      <!-- 撮影して保存ボタン：ui-hidden時も常に表示される固定ボタン -->
+      <button id="btn-capture-fixed" type="button" onclick="captureAndShare()">📸</button>
 
       <!-- UI全非表示モード中の復帰ボタン（常にDOM上に存在） -->
       <button id="btn-show-ui" type="button" onclick="toggleHideUI()" aria-label="UIを表示">👁</button>
@@ -1184,23 +1205,43 @@
         const canvas = document.createElement("canvas");
         const ctx = canvas.getContext("2d");
 
-        // ========== 「見たまま撮影」方式 ==========
-        // 各要素の getBoundingClientRect() で画面上の実際の位置・サイズを取得し
-        // そのままcanvasに描く。計算ゼロ、見た目と完全一致。
+        // ========== 「見たまま撮影」方式（正確版） ==========
+        // .avatar-layer は width:100% height:100% で縦長ボックスを持つが
+        // object-fit:contain で画像は正方形に収まって表示される。
+        // getBoundingClientRect() はボックスサイズ（縦長）を返すので使えない。
+        // → 全レイヤーが同じ座標系なので、基準画像(body)のnaturalサイズから
+        //   object-fit:containの実描画矩形を1回だけ計算して全レイヤーに使う。
 
         const stageRect = stage.getBoundingClientRect();
+        const cw = Math.round(stageRect.width);
+        const ch = Math.round(stageRect.height);
+        canvas.width  = cw;
+        canvas.height = ch;
 
-        // canvas = stageと同じCSS pxサイズで作る（DPRなし）
-        // ※ vw/vhは使わずstageRectを使う
-        canvas.width  = Math.round(stageRect.width);
-        canvas.height = Math.round(stageRect.height);
-        const cw = canvas.width;
-        const ch = canvas.height;
-
-        // ① カメラ映像をstageと同じ比率でcover描画
+        // ① カメラ映像をcover描画
         drawVideoCover(ctx, video, cw, ch);
 
-        // ② 各レイヤー画像を「画面上で見えている位置・サイズ」そのままで描く
+        // ② object-fit:contain の実描画矩形を計算
+        // 全レイヤーは同じ画像サイズ（素体=基準）なので1回だけ計算すればよい
+        const bodyImg = document.getElementById("layer-body");
+        const natW = bodyImg && bodyImg.naturalWidth  ? bodyImg.naturalWidth  : cw;
+        const natH = bodyImg && bodyImg.naturalHeight ? bodyImg.naturalHeight : ch;
+
+        // contain: アスペクト比を保ちつつcw×chに収まる最大サイズ
+        const fitScale = Math.min(cw / natW, ch / natH);
+        const fitW = natW * fitScale;
+        const fitH = natH * fitScale;
+        // 中央寄せのオフセット
+        const fitX = (cw - fitW) / 2;
+        const fitY = (ch - fitH) / 2;
+
+        // avatar-group の transform（ドラッグ・ピンチ）を反映
+        // avatarTransform.x/y はCSS px単位 → そのまま使える（canvasもCSS px基準）
+        ctx.save();
+        ctx.translate(cw / 2 + avatarTransform.x, ch / 2 + avatarTransform.y);
+        ctx.scale(avatarTransform.scale, avatarTransform.scale);
+        ctx.translate(-cw / 2, -ch / 2);
+
         const layerIds = [
           "layer-background", "layer-hair-back", "layer-body",
           "layer-eyes", "layer-mouth", "layer-outfit",
@@ -1211,18 +1252,12 @@
         layerIds.forEach((id) => {
           const img = document.getElementById(id);
           if (!img || img.style.display === "none" || !img.src || img.naturalWidth === 0) return;
-
-          // 画面上でのこの画像の実際の位置・サイズ
-          const r = img.getBoundingClientRect();
-          // stage基準の相対座標に変換
-          const dx = r.left - stageRect.left;
-          const dy = r.top  - stageRect.top;
-          const dw = r.width;
-          const dh = r.height;
-
-          ctx.drawImage(img, dx, dy, dw, dh);
+          // object-fit:contain と同じ矩形に描く
+          ctx.drawImage(img, fitX, fitY, fitW, fitH);
           itemsDrawn++;
         });
+
+        ctx.restore();
 
         if (itemsDrawn === 0) { alert("画像が表示されていません"); return; }
 
