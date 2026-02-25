@@ -1,0 +1,478 @@
+[
+  {
+    "id": "hair1_front",
+    "name": "前髪1",
+    "category": "hair-front",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "hair2_front",
+    "name": "前髪2",
+    "category": "hair-front",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "hair3_front",
+    "name": "前髪3",
+    "category": "hair-front",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "hair4_front",
+    "name": "前髪4",
+    "category": "hair-front",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "hair5_front",
+    "name": "前髪5",
+    "category": "hair-front",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "hair6_front",
+    "name": "前髪6",
+    "category": "hair-front",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "hair7_front",
+    "name": "前髪7",
+    "category": "hair-front",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "hair8_front",
+    "name": "前髪8",
+    "category": "hair-front",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "hair9_front",
+    "name": "前髪9",
+    "category": "hair-front",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "hair10_front",
+    "name": "前髪10",
+    "category": "hair-front",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "hair11_front",
+    "name": "前髪11",
+    "category": "hair-front",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "hair12_front",
+    "name": "前髪12",
+    "category": "hair-front",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "hair1_back",
+    "name": "後髪1",
+    "category": "hair-back",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "hair2_back",
+    "name": "後髪2",
+    "category": "hair-back",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "hair3_back",
+    "name": "後髪3",
+    "category": "hair-back",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "hair4_back",
+    "name": "後髪4",
+    "category": "hair-back",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "hair5_back",
+    "name": "後髪5",
+    "category": "hair-back",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "hair6_back",
+    "name": "後髪6",
+    "category": "hair-back",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "hair7_back",
+    "name": "後髪7",
+    "category": "hair-back",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "hair8_back",
+    "name": "後髪8",
+    "category": "hair-back",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "hair9_back",
+    "name": "後髪9",
+    "category": "hair-back",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "hair10_back",
+    "name": "後髪10",
+    "category": "hair-back",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "hair11_back",
+    "name": "後髪11",
+    "category": "hair-back",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "hair12_back",
+    "name": "後髪12",
+    "category": "hair-back",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "eyes1",
+    "name": "目1",
+    "category": "eyes",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "eyes2",
+    "name": "目2",
+    "category": "eyes",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "eyes3",
+    "name": "目3",
+    "category": "eyes",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "eyes4",
+    "name": "目4",
+    "category": "eyes",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "eyes5",
+    "name": "目5",
+    "category": "eyes",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "eyes6",
+    "name": "目6",
+    "category": "eyes",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "eyes7",
+    "name": "目7",
+    "category": "eyes",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "eyes8",
+    "name": "目8",
+    "category": "eyes",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "eyes9",
+    "name": "目9",
+    "category": "eyes",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "eyes10",
+    "name": "目10",
+    "category": "eyes",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "eyes11",
+    "name": "目11",
+    "category": "eyes",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "eyes12",
+    "name": "目12",
+    "category": "eyes",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "eyes13",
+    "name": "目13",
+    "category": "eyes",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "eyes14",
+    "name": "目14",
+    "category": "eyes",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "mouth1",
+    "name": "口1",
+    "category": "mouth",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "mouth2",
+    "name": "口2",
+    "category": "mouth",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "mouth3",
+    "name": "口3",
+    "category": "mouth",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "mouth4",
+    "name": "口4",
+    "category": "mouth",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "mouth5",
+    "name": "口5",
+    "category": "mouth",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "mouth6",
+    "name": "口6",
+    "category": "mouth",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "outfit1",
+    "name": "服1",
+    "category": "outfit",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "outfit2",
+    "name": "服2",
+    "category": "outfit",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "outfit3",
+    "name": "服3",
+    "category": "outfit",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "outfit4",
+    "name": "服4",
+    "category": "outfit",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "outfit5",
+    "name": "服5",
+    "category": "outfit",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "outfit6",
+    "name": "服6",
+    "category": "outfit",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "outfit7",
+    "name": "服7",
+    "category": "outfit",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "outfit8",
+    "name": "服8",
+    "category": "outfit",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "outfit9",
+    "name": "服9",
+    "category": "outfit",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "outfit10",
+    "name": "服10",
+    "category": "outfit",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "outfit11",
+    "name": "服11",
+    "category": "outfit",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "outfit12",
+    "name": "服12",
+    "category": "outfit",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "outfit13",
+    "name": "服13",
+    "category": "outfit",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "outfit14",
+    "name": "服14",
+    "category": "outfit",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "outfit15",
+    "name": "服15",
+    "category": "outfit",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "accessory1",
+    "name": "アクセ1",
+    "category": "accessory",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "accessory2",
+    "name": "アクセ2",
+    "category": "accessory",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "accessory3",
+    "name": "アクセ3",
+    "category": "accessory",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "twoshot1",
+    "name": "ツーショット1",
+    "category": "twoshot",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "twoshot2",
+    "name": "ツーショット2",
+    "category": "twoshot",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "twoshot3",
+    "name": "ツーショット3",
+    "category": "twoshot",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "twoshot4",
+    "name": "ツーショット4",
+    "category": "twoshot",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "twoshot5",
+    "name": "ツーショット5",
+    "category": "twoshot",
+    "creator": "わたすて公式",
+    "ai": false
+  },
+  {
+    "id": "twoshot6",
+    "name": "ツーショット6",
+    "category": "twoshot",
+    "creator": "わたすて公式",
+    "ai": false
+  }
+]
