@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>アイテム登録 - WATASUTE</title>
+  <meta name="description" content="わたすてのクリエイター向けアイテム登録ページ。" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;500;700&display=swap" rel="stylesheet" />
+  <style>
+    /* ========== リセット ========== */
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body { height: 100%; }
+
+    body {
+      font-family: "Zen Maru Gothic", "Helvetica Neue", Arial, sans-serif;
+      background-color: #fcf0f5;
+      background-image: url("assets/bg_pattern.png");
+      background-size: 100px;
+      color: #333;
+      display: flex;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 480px;
+      min-height: 100vh;
+      background: rgba(255, 255, 255, 0.97);
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+      display: flex;
+      flex-direction: column;
+    }
+
+    @media (min-width: 900px) { .app { max-width: 640px; } }
+
+    /* ========== ヘッダー ========== */
+    header {
+      width: 100%;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      border-bottom: 1px solid #ffd6e7;
+    }
+
+    .logo { width: 180px; max-width: 60%; }
+
+    .back-btn {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.8rem;
+      padding: 6px 12px;
+      border-radius: 999px;
+      border: 1px solid #ddd;
+      background: #fff;
+      color: #555;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* ========== メイン ========== */
+    main { flex: 1; padding: 24px 20px 48px; }
+
+    /* ヒーロー */
+    .hero {
+      text-align: center;
+      margin-bottom: 24px;
+      padding: 22px 16px;
+      background: linear-gradient(135deg, #fff0f7 0%, #fce4f0 50%, #fff0f7 100%);
+      border-radius: 20px;
+      border: 1px solid #ffd6e7;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      background: #ff9fb8;
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 999px;
+      letter-spacing: 0.05em;
+      margin-bottom: 10px;
+    }
+
+    .hero-title {
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: #d63a77;
+      margin-bottom: 6px;
+    }
+
+    .hero-sub {
+      font-size: 0.8rem;
+      color: #888;
+      line-height: 1.7;
+    }
+
+    /* ========== フォームカード ========== */
+    .form-card {
+      background: #fff;
+      border-radius: 20px;
+      padding: 22px 18px;
+      box-shadow: 0 2px 12px rgba(255, 159, 184, 0.15);
+      border: 1px solid #ffd6e7;
+      margin-bottom: 16px;
+    }
+
+    .form-card-title {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: #d63a77;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 2px dashed #ffd6e7;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* ========== フィールド ========== */
+    .field { margin-bottom: 16px; }
+    .field:last-child { margin-bottom: 0; }
+
+    label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: #555;
+      margin-bottom: 6px;
+    }
+
+    .required { color: #ff6b9d; margin-left: 4px; font-size: 0.75rem; }
+    .optional { color: #aaa; margin-left: 4px; font-size: 0.72rem; font-weight: 400; }
+
+    input[type="text"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid #eee;
+      border-radius: 12px;
+      font-size: 0.88rem;
+      font-family: inherit;
+      color: #333;
+      background: #fafafa;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      appearance: none;
+      -webkit-appearance: none;
+    }
+
+    textarea {
+      resize: vertical;
+      min-height: 90px;
+      line-height: 1.6;
+    }
+
+    input[type="text"]:focus,
+    select:focus,
+    textarea:focus {
+      outline: none;
+      border-color: #ff9fb8;
+      box-shadow: 0 0 0 3px rgba(255, 159, 184, 0.15);
+      background: #fff;
+    }
+
+    input::placeholder,
+    textarea::placeholder { color: #bbb; }
+
+    /* セレクトボックスの矢印 */
+    .select-wrap { position: relative; }
+    .select-wrap::after {
+      content: "▼";
+      position: absolute;
+      right: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.7rem;
+      color: #aaa;
+      pointer-events: none;
+    }
+
+    /* ファイル名フィールドのヒント */
+    .field-hint {
+      font-size: 0.73rem;
+      color: #aaa;
+      margin-top: 5px;
+      line-height: 1.5;
+    }
+
+    .field-hint code {
+      background: #f5f5f5;
+      padding: 1px 5px;
+      border-radius: 4px;
+      font-size: 0.78rem;
+      color: #d63a77;
+    }
+
+    /* プレビューエリア */
+    .preview-area {
+      margin-top: 10px;
+      width: 100%;
+      height: 140px;
+      border: 2px dashed #ffd6e7;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff8fb;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+
+    .preview-area img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+      display: none;
+    }
+
+    .preview-placeholder {
+      font-size: 0.78rem;
+      color: #ccc;
+      text-align: center;
+      line-height: 1.8;
+    }
+
+    /* AIチェック */
+    .ai-check-area {
+      background: #fff8fb;
+      border: 1.5px solid #ffd6e7;
+      border-radius: 14px;
+      padding: 14px;
+    }
+
+    .ai-check-label {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      cursor: pointer;
+    }
+
+    .ai-check-label input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      accent-color: #ff9fb8;
+      flex-shrink: 0;
+      margin-top: 2px;
+      cursor: pointer;
+    }
+
+    .ai-check-title { font-size: 0.88rem; font-weight: 700; color: #333; margin-bottom: 3px; }
+    .ai-check-desc  { font-size: 0.75rem; color: #888; line-height: 1.6; }
+
+    /* ========== 確認プレビューカード ========== */
+    #preview-card {
+      display: none;
+      background: #fff8fb;
+      border: 1.5px solid #ffd6e7;
+      border-radius: 16px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+
+    #preview-card h3 {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: #d63a77;
+      margin-bottom: 12px;
+    }
+
+    .preview-row {
+      display: flex;
+      gap: 8px;
+      font-size: 0.82rem;
+      margin-bottom: 6px;
+      align-items: flex-start;
+    }
+
+    .preview-row .label {
+      color: #aaa;
+      min-width: 100px;
+      flex-shrink: 0;
+    }
+
+    .preview-row .value { color: #333; font-weight: 700; }
+
+    /* ========== ボタン ========== */
+    .btn-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .btn-check {
+      flex: 1;
+      padding: 14px;
+      background: #fff;
+      color: #ff9fb8;
+      border: 2px solid #ff9fb8;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .btn-check:hover { background: #fff0f5; }
+
+    .submit-btn {
+      flex: 2;
+      padding: 14px;
+      background: linear-gradient(135deg, #ff9fb8, #ff6b9d);
+      color: #fff;
+      border: none;
+      border-radius: 999px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: transform 0.1s, box-shadow 0.2s;
+      box-shadow: 0 4px 14px rgba(255, 107, 157, 0.35);
+    }
+
+    .submit-btn:active { transform: scale(0.98); }
+    .submit-btn:disabled {
+      background: #ddd;
+      box-shadow: none;
+      cursor: not-allowed;
+    }
+
+    /* 完了メッセージ */
+    #done-msg {
+      display: none;
+      text-align: center;
+      padding: 32px 20px;
+      background: linear-gradient(135deg, #fff0f7, #fce4f0);
+      border-radius: 20px;
+      border: 1px solid #ffd6e7;
+      margin-bottom: 20px;
+    }
+
+    #done-msg .done-icon { font-size: 2.5rem; margin-bottom: 10px; }
+    #done-msg h2 { font-size: 1.2rem; color: #d63a77; margin-bottom: 8px; }
+    #done-msg p  { font-size: 0.82rem; color: #888; line-height: 1.7; }
+
+    .btn-reset {
+      margin-top: 16px;
+      padding: 12px 28px;
+      background: #ff9fb8;
+      color: #fff;
+      border: none;
+      border-radius: 999px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+    }
+
+    .note {
+      font-size: 0.75rem;
+      color: #aaa;
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    /* ========== フッター ========== */
+    footer {
+      background: #d0f0f0;
+      padding: 20px 16px;
+      text-align: center;
+      font-size: 0.78rem;
+      color: #777;
+    }
+
+    footer a { color: #555; text-decoration: none; }
+  </style>
+</head>
+<body>
+  <div class="app">
+
+    <header>
+      <a href="creator.html" class="back-btn">← クリエイターページへ</a>
+      <img src="assets/logo.png" class="logo" alt="WATASUTE ロゴ" />
+    </header>
+
+    <main>
+
+      <!-- ヒーロー -->
+      <div class="hero">
+        <div class="hero-badge">✦ ITEM REGISTRATION</div>
+        <h1 class="hero-title">アイテム登録</h1>
+        <p class="hero-sub">
+          着せ替えに追加したいアイテムを登録しよう。<br>
+          審査後、わたすてに反映されます。
+        </p>
+      </div>
+
+      <!-- フォーム -->
+      <div id="form-area">
+
+        <!-- 基本情報 -->
+        <div class="form-card">
+          <div class="form-card-title">🏷️ アイテム情報</div>
+
+          <div class="field">
+            <label for="item-name">アイテム名<span class="required">※必須</span></label>
+            <input type="text" id="item-name" placeholder="例：和風振袖セット" />
+          </div>
+
+          <div class="field">
+            <label for="item-category">カテゴリ<span class="required">※必須</span></label>
+            <div class="select-wrap">
+              <select id="item-category">
+                <option value="">選択してください</option>
+                <option value="outfit">服・衣装</option>
+                <option value="hair-front">前髪</option>
+                <option value="hair-back">後髪</option>
+                <option value="eyes">目</option>
+                <option value="mouth">口</option>
+                <option value="accessory">アクセサリ</option>
+                <option value="twoshot">ツーショット</option>
+                <option value="background">背景</option>
+                <option value="frame">フレーム</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="item-desc">アイテムの説明<span class="optional">任意</span></label>
+            <textarea id="item-desc" placeholder="例：藤の花をモチーフにした和風振袖です。透過PNG対応。"></textarea>
+          </div>
+        </div>
+
+        <!-- ファイル情報 -->
+        <div class="form-card">
+          <div class="form-card-title">📁 ファイル情報</div>
+
+          <div class="field">
+            <label for="file-name">ファイル名<span class="required">※必須</span></label>
+            <input type="text" id="file-name" placeholder="例：outfit_wisteria" oninput="updatePreview()" />
+            <div class="field-hint">
+              拡張子なしで入力してください。<br>
+              <code>assets/</code> フォルダに <code>ファイル名.png</code> で配置します。<br>
+              使える文字：英数字・アンダースコア（_）・ハイフン（-）
+            </div>
+            <div class="preview-area" id="img-preview-area">
+              <img id="img-preview" src="" alt="プレビュー" />
+              <div class="preview-placeholder" id="preview-placeholder">
+                ファイル名を入力すると<br>プレビューが表示されます
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- クリエイター情報 -->
+        <div class="form-card">
+          <div class="form-card-title">👤 クリエイター情報</div>
+
+          <div class="field">
+            <label for="creator-name">クリエイター名<span class="required">※必須</span></label>
+            <input type="text" id="creator-name" placeholder="例：わたすてクリエイター" />
+          </div>
+
+          <div class="field">
+            <div class="ai-check-area">
+              <label class="ai-check-label">
+                <input type="checkbox" id="ai-check" />
+                <div>
+                  <div class="ai-check-title">AI生成素材を使用している</div>
+                  <div class="ai-check-desc">AIツールを使って制作した場合はチェックしてください。</div>
+                </div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- 確認プレビュー -->
+        <div id="preview-card">
+          <h3>📋 登録内容の確認</h3>
+          <div class="preview-row"><span class="label">アイテム名</span><span class="value" id="p-name">-</span></div>
+          <div class="preview-row"><span class="label">カテゴリ</span><span class="value" id="p-category">-</span></div>
+          <div class="preview-row"><span class="label">ファイル名</span><span class="value" id="p-file">-</span></div>
+          <div class="preview-row"><span class="label">クリエイター</span><span class="value" id="p-creator">-</span></div>
+          <div class="preview-row"><span class="label">AI使用</span><span class="value" id="p-ai">-</span></div>
+          <div class="preview-row"><span class="label">説明</span><span class="value" id="p-desc">-</span></div>
+        </div>
+
+        <!-- ボタン -->
+        <div class="btn-row">
+          <button class="btn-check" type="button" onclick="showPreview()">内容を確認</button>
+          <button class="submit-btn" type="button" id="submit-btn" onclick="handleSubmit()">登録申請する ✦</button>
+        </div>
+
+        <p class="note">登録後、運営が審査してassetsに反映します。</p>
+
+      </div><!-- /#form-area -->
+
+      <!-- 完了メッセージ -->
+      <div id="done-msg">
+        <div class="done-icon">🎉</div>
+        <h2>登録申請を受け付けました！</h2>
+        <p>
+          内容を確認後、assetsへの反映をご連絡いたします。<br>
+          引き続きよろしくお願いいたします。
+        </p>
+        <button class="btn-reset" onclick="resetForm()">続けて登録する</button>
+      </div>
+
+    </main>
+
+    <footer>
+      <div style="margin-bottom:8px; font-weight:bold; color:#555;">WATASUTE</div>
+      <a href="index.html">トップへ戻る</a>　|　<a href="creator.html">クリエイターページ</a>
+    </footer>
+
+  </div>
+
+  <script>
+    const CATEGORY_LABELS = {
+      'outfit':      '服・衣装',
+      'hair-front':  '前髪',
+      'hair-back':   '後髪',
+      'eyes':        '目',
+      'mouth':       '口',
+      'accessory':   'アクセサリ',
+      'twoshot':     'ツーショット',
+      'background':  '背景',
+      'frame':       'フレーム',
+    };
+
+    // ファイル名入力時にプレビュー更新
+    function updatePreview() {
+      const fileName   = document.getElementById('file-name').value.trim();
+      const imgEl      = document.getElementById('img-preview');
+      const placeholder = document.getElementById('preview-placeholder');
+
+      if (fileName) {
+        imgEl.src = `assets/${fileName}.png`;
+        imgEl.style.display = 'block';
+        placeholder.style.display = 'none';
+        imgEl.onerror = () => {
+          imgEl.style.display = 'none';
+          placeholder.style.display = 'block';
+          placeholder.textContent = '画像が見つかりません\nassets/' + fileName + '.png';
+        };
+      } else {
+        imgEl.style.display = 'none';
+        placeholder.style.display = 'block';
+        placeholder.innerHTML = 'ファイル名を入力すると<br>プレビューが表示されます';
+      }
+    }
+
+    // 確認プレビュー表示
+    function showPreview() {
+      const name     = document.getElementById('item-name').value.trim();
+      const category = document.getElementById('item-category').value;
+      const fileName = document.getElementById('file-name').value.trim();
+      const creator  = document.getElementById('creator-name').value.trim();
+      const usesAi   = document.getElementById('ai-check').checked;
+      const desc     = document.getElementById('item-desc').value.trim();
+
+      if (!name || !category || !fileName || !creator) {
+        alert('必須項目をすべて入力してください');
+        return;
+      }
+
+      document.getElementById('p-name').textContent     = name;
+      document.getElementById('p-category').textContent = CATEGORY_LABELS[category] || category;
+      document.getElementById('p-file').textContent     = `assets/${fileName}.png`;
+      document.getElementById('p-creator').textContent  = creator;
+      document.getElementById('p-ai').textContent       = usesAi ? 'あり' : 'なし';
+      document.getElementById('p-desc').textContent     = desc || '（なし）';
+
+      const card = document.getElementById('preview-card');
+      card.style.display = 'block';
+      card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // 送信（ダミー）
+    function handleSubmit() {
+      const name     = document.getElementById('item-name').value.trim();
+      const category = document.getElementById('item-category').value;
+      const fileName = document.getElementById('file-name').value.trim();
+      const creator  = document.getElementById('creator-name').value.trim();
+
+      if (!name || !category || !fileName || !creator) {
+        alert('必須項目をすべて入力してください');
+        return;
+      }
+
+      // ダミー送信（将来的にAPIやメール送信に差し替え）
+      document.getElementById('form-area').style.display = 'none';
+      document.getElementById('done-msg').style.display  = 'block';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // フォームリセット
+    function resetForm() {
+      document.getElementById('item-name').value     = '';
+      document.getElementById('item-category').value = '';
+      document.getElementById('item-desc').value     = '';
+      document.getElementById('file-name').value     = '';
+      document.getElementById('creator-name').value  = '';
+      document.getElementById('ai-check').checked    = false;
+      document.getElementById('img-preview').style.display    = 'none';
+      document.getElementById('preview-placeholder').innerHTML = 'ファイル名を入力すると<br>プレビューが表示されます';
+      document.getElementById('preview-card').style.display   = 'none';
+      document.getElementById('done-msg').style.display       = 'none';
+      document.getElementById('form-area').style.display      = 'block';
+    }
+  </script>
+</body>
+</html>
