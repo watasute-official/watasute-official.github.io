@@ -625,7 +625,7 @@
       cursor: pointer;
       box-shadow: 0 2px 10px rgba(0,0,0,0.3);
     }
-    body.shoot-fullscreen #btn-capture-fixed { display: block; }
+    body.shoot-fullscreen.ui-hidden #btn-capture-fixed { display: block; }
 
     /* ========== ツーショットキャラ ========== */
     #twoshot-group {
@@ -1119,7 +1119,7 @@
         if (cameraStream) return;
 
         cameraStream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode },
+          video: { facingMode: { ideal: facingMode } },
           audio: false,
         });
 
